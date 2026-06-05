@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Manoj Production ERP</title>
-  <meta name="description" content="Personal production ERP for job-wise fabrication tracking, worker hours, OT, QC/TPI, material and CEO reports." />
+  <meta name="description" content="Personal production ERP for job-wise fabrication tracking, worker hours, OT, daily work plan uploads, fit-up inspection calls, QC/TPI, material and CEO reports." />
   <style>
     :root{
       --bg:#f4f7fb;
@@ -56,7 +56,10 @@
     .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;background:#fff}table{width:100%;border-collapse:collapse;min-width:900px}th,td{padding:12px 13px;border-bottom:1px solid var(--line);font-size:13px;text-align:left;vertical-align:top}th{background:#f8fafc;color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:1}tr:hover td{background:#fafafa}.actions{display:flex;gap:7px;flex-wrap:wrap}.mini{padding:7px 9px;border-radius:9px;font-size:12px}.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:750}.chip.done{background:#dcfce7;color:#166534}.chip.pending{background:#ffedd5;color:#9a3412}.chip.progress{background:#dbeafe;color:#1d4ed8}.chip.hold{background:#fee2e2;color:#991b1b}.chip.default{background:#f1f5f9;color:#475569}
     .filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:14px}.report-box{border:1px dashed #cbd5e1;border-radius:16px;background:#f8fafc;padding:16px;white-space:pre-wrap;line-height:1.55;font-size:14px;color:#1f2937}.muted{color:var(--muted)}.hide{display:none!important}.print-area{background:white}
     .bar-list{display:flex;flex-direction:column;gap:10px}.bar-row{display:grid;grid-template-columns:110px 1fr 70px;gap:10px;align-items:center;font-size:13px}.bar{height:11px;background:#e5e7eb;border-radius:999px;overflow:hidden}.bar span{display:block;height:100%;background:linear-gradient(90deg,#1f6feb,#10b981);border-radius:999px}.empty{border:1px dashed #cbd5e1;border-radius:16px;padding:22px;text-align:center;color:#64748b;background:#f8fafc}.notice{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:16px;padding:13px 15px;font-size:13px;line-height:1.5;margin-bottom:16px}.notice strong{color:#7c2d12}
-    @media(max-width:980px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.main{padding:18px}.topbar{align-items:flex-start;flex-direction:column}.toolbar{justify-content:flex-start}.grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr}.form,.form.two,.form.three,.filters{grid-template-columns:1fr}table{min-width:760px}}
+
+    .call-status{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:10px 0 14px}.call-status button{justify-content:center;padding:9px 10px;font-size:12px}.call-status .active-step{outline:3px solid rgba(31,111,235,.18);background:#dbeafe;color:#1d4ed8}.message-box{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:12px;white-space:pre-wrap;font-size:13px;line-height:1.5}
+    .file-pill{display:inline-flex;align-items:center;gap:7px;background:#eef2ff;color:#3730a3;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:750}.file-note{font-size:12px;color:#64748b;line-height:1.45;margin-top:7px}
+    @media(max-width:980px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.main{padding:18px}.topbar{align-items:flex-start;flex-direction:column}.toolbar{justify-content:flex-start}.grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr}.form,.form.two,.form.three,.filters{grid-template-columns:1fr}.call-status{grid-template-columns:1fr 1fr}table{min-width:760px}}
     @media print{.sidebar,.toolbar,.no-print,form,.nav,.topbar p{display:none!important}.app{display:block}.main{padding:0}.card{box-shadow:none;border:0}.section{display:block}.section:not(.active){display:none}.table-wrap{border:0}body{background:#fff}}
   </style>
 </head>
@@ -69,7 +72,7 @@
       </div>
       <nav class="nav" id="nav"></nav>
       <div class="side-footer">
-        <strong>Own-use ERP v1</strong><br />
+        <strong>Own-use ERP v3</strong><br />
         Data saves in this browser using local storage. Use Backup JSON regularly before clearing browser data.
       </div>
     </aside>
@@ -123,6 +126,51 @@
         </div>
       </section>
 
+      <section id="plans" class="section">
+        <div class="grid cols-2">
+          <div class="card">
+            <h3>Add Daily Work Plan</h3>
+            <div class="notice"><strong>Use:</strong> Morning-la plan enter pannunga. Evening actual daily entry potta plan vs actual CEO report-la varum.</div>
+            <form class="form two" id="planForm">
+              <div><label>Plan Date</label><input type="date" name="date" required></div>
+              <div><label>Job No</label><select name="jobNo" required></select></div>
+              <div><label>Tag No</label><select name="tagNo"><option value="">No tag</option></select></div>
+              <div><label>Stage / Work Type</label><select name="workType"><option>Fit-up</option><option>LS Fit-up</option><option>CS Fit-up</option><option>Welding</option><option>LS Welding</option><option>CS Welding</option><option>Final Run Welding</option><option>Grinding</option><option>Painting</option><option>Hydro Test</option><option>Inspection</option><option>Material</option><option>Other</option></select></div>
+              <div><label>Planned Worker / Team</label><input name="plannedWorker" placeholder="Worker or team name"></div>
+              <div><label>Target Hours</label><input name="targetHours" type="number" step="0.25" min="0" placeholder="8.5"></div>
+              <div><label>Priority</label><select name="priority"><option>Normal</option><option>Urgent</option><option>Hold Point</option></select></div>
+              <div><label>Status</label><select name="status"><option>Planned</option><option>In Progress</option><option>Completed</option><option>Pending</option><option>Hold</option><option>Cancelled</option></select></div>
+              <div class="full"><label>Planned Work / Remarks</label><textarea name="plannedWork" placeholder="Example: Job 21/25 Trap-1 LS fit-up ready panni QC call raise pannanum."></textarea></div>
+              <div class="full"><button class="primary" type="submit">+ Save Work Plan</button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>Upload Daily Work Plan File</h3>
+            <div class="notice"><strong>Upload:</strong> PDF, Excel, image, DOCX, CSV plan file attach pannalam. Data browser backup JSON-la save aagum.</div>
+            <form class="form two" id="planFileForm">
+              <div><label>Plan Date</label><input type="date" name="date" required></div>
+              <div><label>Job No</label><select name="jobNo"></select></div>
+              <div class="full"><label>Plan Title</label><input name="title" placeholder="Example: 05-06-2026 Daily Work Plan"></div>
+              <div class="full"><label>Upload File</label><input type="file" name="file" accept=".pdf,.xlsx,.xls,.csv,.jpg,.jpeg,.png,.doc,.docx" required><div class="file-note">Small files best. Very big files may not save because browser local storage has limit.</div></div>
+              <div class="full"><label>Remarks</label><textarea name="remarks" placeholder="Any note about this plan file"></textarea></div>
+              <div class="full"><button class="primary" type="submit">⬆ Save Uploaded Plan</button></div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><h3>Daily Work Plan Register</h3><button class="ghost" onclick="exportCSV('plans')">Export CSV</button></div>
+          <div class="filters"><input id="planSearch" oninput="renderPlans()" placeholder="Search plan/job/tag/worker"><select id="planJobFilter" onchange="renderPlans()"></select><input id="planFrom" onchange="renderPlans()" type="date"><input id="planTo" onchange="renderPlans()" type="date"><button onclick="clearPlanFilters()">Clear</button></div>
+          <div class="table-wrap"><table id="plansTable"></table></div>
+        </div>
+
+        <div class="card" style="margin-top:18px">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><h3>Uploaded Plan Files</h3><button class="ghost" onclick="exportCSV('planFiles')">Export File List CSV</button></div>
+          <div class="table-wrap"><table id="planFilesTable"></table></div>
+        </div>
+      </section>
+
       <section id="jobs" class="section">
         <div class="card">
           <h3>Add / Update Job Master</h3>
@@ -161,6 +209,33 @@
           <div class="filters"><input id="workerSearch" oninput="renderWorkers()" placeholder="Search worker/job"><select id="workerJobFilter" onchange="renderWorkers()"></select><input id="workerFrom" onchange="renderWorkers()" type="date"><input id="workerTo" onchange="renderWorkers()" type="date"><button onclick="clearWorkerFilters()">Clear</button></div>
           <div style="margin-bottom:12px"><button class="ghost" onclick="exportWorkerReport()">Export Worker Report CSV</button></div>
           <div class="table-wrap"><table id="workerTable"></table></div>
+        </div>
+      </section>
+
+
+      <section id="inspectionCalls" class="section">
+        <div class="card">
+          <h3>Fit-up / Welding Inspection Call</h3>
+          <div class="notice"><strong>Workflow:</strong> Production raise pannum call → QC-ku pending/raised → QC check pannum → Completed / Repair / Hold status update.</div>
+          <form class="form" id="inspectionCallForm">
+            <div><label>Call Date</label><input type="date" name="date" required></div>
+            <div><label>Job No</label><select name="jobNo" required></select></div>
+            <div><label>Tag No</label><select name="tagNo"><option value="">No tag</option></select></div>
+            <div><label>Stage / Call Type</label><select name="callType"><option>LS Fit-up</option><option>CS Fit-up</option><option>LS Welding Visual</option><option>CS Welding Visual</option><option>Shell to Dish Fit-up</option><option>Shell to Dish Welding</option><option>Nozzle Fit-up</option><option>Nozzle Welding</option><option>Final Visual</option><option>Other</option></select></div>
+            <div><label>Joint / Area</label><input name="jointArea" placeholder="Example: LS-1 / CS-2 / RHS dish"></div>
+            <div><label>Raised By</label><input name="raisedBy" placeholder="Production person"></div>
+            <div><label>QC Person</label><input name="qcPerson" placeholder="QC name"></div>
+            <div><label>Priority</label><select name="priority"><option>Normal</option><option>Urgent</option><option>Hold Point</option></select></div>
+            <div><label>Call Status</label><select name="callStatus"><option>Call Raised to QC</option><option>QC Received</option><option>QC Checking</option><option>Completed / Accepted</option><option>Rejected / Repair</option><option>Hold</option></select></div>
+            <div><label>QC Result Date</label><input type="date" name="qcResultDate"></div>
+            <div class="full"><label>Remarks</label><textarea name="remarks" placeholder="Example: LS fit-up ready for QC inspection. Please check and update. Repair marked at weld edge, re-offer required."></textarea></div>
+            <div class="full"><button class="primary" type="submit">+ Save Inspection Call</button></div>
+          </form>
+        </div>
+        <div class="card" style="margin-top:18px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h3>Inspection Call Register</h3><button class="ghost" onclick="exportCSV('inspectionCalls')">Export CSV</button></div>
+          <div class="filters"><input id="inspectionSearch" oninput="renderInspectionCalls()" placeholder="Search job/tag/joint/QC"><select id="inspectionJobFilter" onchange="renderInspectionCalls()"></select><select id="inspectionStatusFilter" onchange="renderInspectionCalls()"><option value="">All Status</option><option>Call Raised to QC</option><option>QC Received</option><option>QC Checking</option><option>Completed / Accepted</option><option>Rejected / Repair</option><option>Hold</option></select><input id="inspectionFrom" onchange="renderInspectionCalls()" type="date"><input id="inspectionTo" onchange="renderInspectionCalls()" type="date"></div>
+          <div class="table-wrap"><table id="inspectionCallsTable"></table></div>
         </div>
       </section>
 
@@ -240,9 +315,11 @@ const STORAGE_KEY='manoj_production_erp_v1';
 const sections=[
   ['dashboard','📊 Dashboard','Today’s production status and pending work summary.'],
   ['daily','📝 Daily Entry','Add daily job-wise work and worker timing.'],
+  ['plans','📋 Daily Work Plan','Upload or enter daily work plan and compare with actual work.'],
   ['jobs','🏭 Job Master','Create and maintain job numbers.'],
   ['tags','🏷 Tag Master','Create tag numbers linked with jobs.'],
   ['workers','👷 Worker Hours','Worker-wise regular and OT hours report.'],
+  ['inspectionCalls','📣 Inspection Calls','Raise LS/CS fit-up or welding calls to QC and track QC completion.'],
   ['qc','✅ QC / TPI','Inspection and witness call status.'],
   ['materials','📦 Material / MIR','Material receipt and MIR status.'],
   ['reports','📄 CEO Report','Generate clean daily report text.'],
@@ -250,13 +327,13 @@ const sections=[
 ];
 const emptyDB=()=>({
   settings:{regularStart:'08:30',regularEnd:'17:00',defaultOTEnd:'19:00',company:'Dynatherm Production Tracking'},
-  jobs:[],tags:[],daily:[],qc:[],materials:[]
+  jobs:[],tags:[],daily:[],plans:[],planFiles:[],inspectionCalls:[],qc:[],materials:[]
 });
 let db=loadDB();
-let editing={jobs:null,tags:null,daily:null,qc:null,materials:null};
+let editing={jobs:null,tags:null,daily:null,plans:null,qc:null,materials:null};
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 function today(){return new Date().toISOString().slice(0,10)}
-function loadDB(){try{const raw=localStorage.getItem(STORAGE_KEY);return raw?JSON.parse(raw):emptyDB()}catch(e){return emptyDB()}}
+function loadDB(){try{const raw=localStorage.getItem(STORAGE_KEY);const data=raw?JSON.parse(raw):emptyDB();const base=emptyDB();return {...base,...data,settings:{...base.settings,...(data.settings||{})},plans:data.plans||[],planFiles:data.planFiles||[],inspectionCalls:data.inspectionCalls||[]}}catch(e){return emptyDB()}}
 function saveDB(){localStorage.setItem(STORAGE_KEY,JSON.stringify(db));renderAll()}
 function fmtDate(d){if(!d)return'';const [y,m,day]=d.split('-');return `${day}-${m}-${y}`}
 function statusChip(v){const x=(v||'').toLowerCase();let cls='default';if(x.includes('complete')||x.includes('received')||x.includes('issued')||x.includes('confirmed'))cls='done';else if(x.includes('progress')||x.includes('raised')||x.includes('partial')||x.includes('call'))cls='progress';else if(x.includes('hold'))cls='hold';else if(x.includes('pending')||x.includes('not'))cls='pending';return `<span class="chip ${cls}">${v||'-'}</span>`}
@@ -267,50 +344,130 @@ function groupSum(arr,keyFn,valFn){const m={};arr.forEach(x=>{const k=keyFn(x)||
 function setNav(){document.getElementById('nav').innerHTML=sections.map(s=>`<button class="${s[0]==='dashboard'?'active':''}" onclick="showSection('${s[0]}')"><span>${s[1]}</span></button>`).join('')}
 function showSection(id){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach((b,i)=>b.classList.toggle('active',sections[i][0]===id));const s=sections.find(x=>x[0]===id);document.getElementById('pageTitle').textContent=s[1].replace(/^[^ ]+ /,'');document.getElementById('pageSubtitle').textContent=s[2];renderAll()}
 function fillSelect(sel,items,placeholder='All'){const el=typeof sel==='string'?document.querySelector(sel):sel;if(!el)return;const current=el.value;el.innerHTML=`<option value="">${placeholder}</option>`+items.map(v=>`<option value="${escapeHTML(v)}">${escapeHTML(v)}</option>`).join('');if(items.includes(current))el.value=current}
-function fillJobSelects(){const jobs=db.jobs.map(j=>j.jobNo).sort();document.querySelectorAll('select[name="jobNo"],#dailyJobFilter,#workerJobFilter,#reportJob').forEach(el=>fillSelect(el,jobs,el.id&&el.id.includes('Filter')?'All Jobs':'Select Job'));fillTagSelects()}
+function fillJobSelects(){const jobs=db.jobs.map(j=>j.jobNo).sort();document.querySelectorAll('select[name="jobNo"],#dailyJobFilter,#planJobFilter,#workerJobFilter,#inspectionJobFilter,#reportJob').forEach(el=>fillSelect(el,jobs,el.id&&el.id.includes('Filter')?'All Jobs':'Select Job'));fillTagSelects()}
 function fillTagSelects(){const tags=db.tags.map(t=>t.tagNo).sort();document.querySelectorAll('select[name="tagNo"]').forEach(el=>fillSelect(el,tags,'No tag'))}
 function escapeHTML(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function formData(form){return Object.fromEntries(new FormData(form).entries())}
 function setForm(form,obj){Object.keys(obj||{}).forEach(k=>{if(form.elements[k])form.elements[k].value=obj[k]??''})}
 function resetForm(form){form.reset(); if(form.elements.date)form.elements.date.value=today();}
 function deleteItem(type,id){if(confirm('Delete this record?')){db[type]=db[type].filter(x=>x.id!==id);saveDB()}}
-function editItem(type,id){const item=db[type].find(x=>x.id===id);editing[type]=id;const form=document.getElementById(type==='daily'?'dailyForm':type==='jobs'?'jobForm':type==='tags'?'tagForm':type==='qc'?'qcForm':'materialForm');setForm(form,item);window.scrollTo({top:0,behavior:'smooth'})}
+function editItem(type,id){const item=db[type].find(x=>x.id===id);editing[type]=id;const form=document.getElementById(type==='daily'?'dailyForm':type==='jobs'?'jobForm':type==='tags'?'tagForm':type==='plans'?'planForm':type==='inspectionCalls'?'inspectionCallForm':type==='qc'?'qcForm':'materialForm');setForm(form,item);window.scrollTo({top:0,behavior:'smooth'})}
 function upsert(type,item){if(editing[type]){db[type]=db[type].map(x=>x.id===editing[type]?{...x,...item,id:editing[type]}:x);editing[type]=null}else{db[type].push({...item,id:uid()})}saveDB()}
 function initForms(){
-  ['dailyForm','qcForm'].forEach(id=>{const f=document.getElementById(id); if(f.elements.date)f.elements.date.value=today()});
+  ['dailyForm','planForm','planFileForm','qcForm','inspectionCallForm'].forEach(id=>{const f=document.getElementById(id); if(f&&f.elements.date)f.elements.date.value=today()});
   document.getElementById('reportDate').value=today();
   document.getElementById('jobForm').onsubmit=e=>{e.preventDefault();upsert('jobs',formData(e.target));e.target.reset()};
   document.getElementById('tagForm').onsubmit=e=>{e.preventDefault();upsert('tags',formData(e.target));e.target.reset()};
   document.getElementById('dailyForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);const t=calcTime(d.startTime,d.endTime);upsert('daily',{...d,regularHours:t.regular,otHours:t.ot,totalHours:t.total});resetForm(e.target)};
+  document.getElementById('planForm').onsubmit=e=>{e.preventDefault();upsert('plans',formData(e.target));resetForm(e.target)};
+  document.getElementById('planFileForm').onsubmit=e=>{e.preventDefault();savePlanFile(e.target)};
+  document.getElementById('inspectionCallForm').onsubmit=e=>{e.preventDefault();upsert('inspectionCalls',formData(e.target));resetForm(e.target)};
   document.getElementById('qcForm').onsubmit=e=>{e.preventDefault();upsert('qc',formData(e.target));resetForm(e.target)};
   document.getElementById('materialForm').onsubmit=e=>{e.preventDefault();upsert('materials',formData(e.target));e.target.reset()};
   document.getElementById('settingsForm').onsubmit=e=>{e.preventDefault();db.settings=formData(e.target);saveDB();alert('Settings saved')};
 }
-function renderAll(){fillJobSelects();renderDashboard();renderDaily();renderJobs();renderTags();renderWorkers();renderQC();renderMaterials();loadSettingsForm()}
+function renderAll(){fillJobSelects();renderDashboard();renderDaily();renderPlans();renderPlanFiles();renderJobs();renderTags();renderWorkers();renderInspectionCalls();renderQC();renderMaterials();loadSettingsForm()}
 function loadSettingsForm(){const f=document.getElementById('settingsForm');setForm(f,db.settings)}
 function renderDashboard(){
-  const totalHours=db.daily.reduce((a,b)=>a+Number(b.totalHours||0),0);const otHours=db.daily.reduce((a,b)=>a+Number(b.otHours||0),0);const pendingQC=db.qc.filter(x=>['Pending','Raised','Call Raised'].includes(x.qcStatus)||['Pending','Call Raised','Confirmed'].includes(x.tpiStatus)).length;const pendingMat=db.materials.filter(x=>['Pending','Partially Received','Hold'].includes(x.status)).length;const todayEntries=db.daily.filter(x=>x.date===today()).length;
-  const cards=[['Total Jobs',db.jobs.length,'Active job master records','🏭'],['Total Work Hours',totalHours.toFixed(2),'Regular + OT from daily entries','⏱'],['Total OT Hours',otHours.toFixed(2),'After 5:00 PM calculation','🌙'],['Pending Alerts',pendingQC+pendingMat,`QC/TPI ${pendingQC} · Material ${pendingMat}`,'⚠']];
-  document.getElementById('kpiGrid').innerHTML=cards.map(c=>`<div class="card kpi"><div><div class="label">${c[0]}</div><div class="value">${c[1]}</div><div class="sub">${c[2]}</div></div><div class="icon">${c[3]}</div></div>`).join('')+`<div class="card kpi"><div><div class="label">Today Entries</div><div class="value">${todayEntries}</div><div class="sub">${fmtDate(today())}</div></div><div class="icon">📌</div></div>`;
+  const totalHours=db.daily.reduce((a,b)=>a+Number(b.totalHours||0),0);const otHours=db.daily.reduce((a,b)=>a+Number(b.otHours||0),0);const pendingQC=db.qc.filter(x=>['Pending','Raised','Call Raised'].includes(x.qcStatus)||['Pending','Call Raised','Confirmed'].includes(x.tpiStatus)).length;const pendingCalls=(db.inspectionCalls||[]).filter(x=>!['Completed / Accepted'].includes(x.callStatus)).length;const pendingMat=db.materials.filter(x=>['Pending','Partially Received','Hold'].includes(x.status)).length;const pendingPlans=(db.plans||[]).filter(x=>['Planned','Pending','Hold'].includes(x.status)).length;const todayEntries=db.daily.filter(x=>x.date===today()).length;const todayPlans=(db.plans||[]).filter(x=>x.date===today()).length;
+  const cards=[['Total Jobs',db.jobs.length,'Active job master records','🏭'],['Total Work Hours',totalHours.toFixed(2),'Regular + OT from daily entries','⏱'],['Total OT Hours',otHours.toFixed(2),'After 5:00 PM calculation','🌙'],['Pending Alerts',pendingQC+pendingCalls+pendingMat+pendingPlans,`Plan ${pendingPlans} · Calls ${pendingCalls} · QC/TPI ${pendingQC} · Material ${pendingMat}`,'⚠']];
+  document.getElementById('kpiGrid').innerHTML=cards.map(c=>`<div class="card kpi"><div><div class="label">${c[0]}</div><div class="value">${c[1]}</div><div class="sub">${c[2]}</div></div><div class="icon">${c[3]}</div></div>`).join('')+`<div class="card kpi"><div><div class="label">Today Plan / Entries</div><div class="value">${todayPlans}/${todayEntries}</div><div class="sub">${fmtDate(today())}</div></div><div class="icon">📌</div></div>`;
   renderBars('jobBars',groupSum(db.daily,x=>x.jobNo,x=>x.totalHours),'hrs');
   const statusMap={};[...db.jobs,...db.tags,...db.daily].forEach(x=>{statusMap[x.status||'Blank']=(statusMap[x.status||'Blank']||0)+1});renderBars('statusBars',statusMap,'records');
   renderTable('recentTable',db.daily.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,8),['date','jobNo','tagNo','worker','workType','totalHours','otHours','status'],{status:statusChip,date:fmtDate});
 }
 function renderBars(id,obj,suffix){const el=document.getElementById(id);const entries=Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,8);if(!entries.length){el.innerHTML='<div class="empty">No data yet</div>';return}const max=Math.max(...entries.map(x=>x[1]),1);el.innerHTML=entries.map(([k,v])=>`<div class="bar-row"><div title="${escapeHTML(k)}">${escapeHTML(k)}</div><div class="bar"><span style="width:${Math.max(5,(v/max)*100)}%"></span></div><strong>${Number(v).toFixed(suffix==='hrs'?1:0)} ${suffix}</strong></div>`).join('')}
 function renderTable(id,rows,cols,formatters={}){const el=document.getElementById(id);if(!rows.length){el.innerHTML='<tbody><tr><td class="empty">No records found</td></tr></tbody>';return}el.innerHTML='<thead><tr>'+cols.map(c=>`<th>${labelize(c)}</th>`).join('')+'<th>Action</th></tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>`<td>${formatters[c]?formatters[c](r[c],r):escapeHTML(r[c]??'')}</td>`).join('')+`<td>${actionButtons(id,r.id)}</td></tr>`).join('')+'</tbody>'}
-function actionButtons(tableId,id){const map={dailyTable:'daily',jobsTable:'jobs',tagsTable:'tags',qcTable:'qc',materialsTable:'materials'};const type=map[tableId]||'';if(!type)return'';return `<div class="actions"><button class="mini ghost" onclick="editItem('${type}','${id}')">Edit</button><button class="mini danger" onclick="deleteItem('${type}','${id}')">Delete</button></div>`}
+function actionButtons(tableId,id){const map={dailyTable:'daily',jobsTable:'jobs',tagsTable:'tags',plansTable:'plans',inspectionCallsTable:'inspectionCalls',qcTable:'qc',materialsTable:'materials'};const type=map[tableId]||'';if(!type)return'';return `<div class="actions"><button class="mini ghost" onclick="editItem('${type}','${id}')">Edit</button><button class="mini danger" onclick="deleteItem('${type}','${id}')">Delete</button></div>`}
 function labelize(s){return String(s).replace(/([A-Z])/g,' $1').replace(/^./,m=>m.toUpperCase())}
 function renderDaily(){let rows=[...db.daily];const q=(document.getElementById('dailySearch')?.value||'').toLowerCase();const job=document.getElementById('dailyJobFilter')?.value||'';const from=document.getElementById('dailyFrom')?.value||'';const to=document.getElementById('dailyTo')?.value||'';rows=rows.filter(x=>(!q||Object.values(x).join(' ').toLowerCase().includes(q))&&(!job||x.jobNo===job)&&(!from||x.date>=from)&&(!to||x.date<=to)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));renderTable('dailyTable',rows,['date','jobNo','tagNo','worker','workType','startTime','endTime','regularHours','otHours','totalHours','status','description'],{status:statusChip,date:fmtDate})}
 function clearDailyFilters(){['dailySearch','dailyJobFilter','dailyFrom','dailyTo'].forEach(id=>document.getElementById(id).value='');renderDaily()}
+
+function renderPlans(){
+  let rows=[...(db.plans||[])];
+  const q=(document.getElementById('planSearch')?.value||'').toLowerCase();
+  const job=document.getElementById('planJobFilter')?.value||'';
+  const from=document.getElementById('planFrom')?.value||'';
+  const to=document.getElementById('planTo')?.value||'';
+  rows=rows.filter(x=>(!q||Object.values(x).join(' ').toLowerCase().includes(q))&&(!job||x.jobNo===job)&&(!from||x.date>=from)&&(!to||x.date<=to)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  renderTable('plansTable',rows,['date','jobNo','tagNo','workType','plannedWorker','targetHours','priority','status','plannedWork'],{date:fmtDate,status:statusChip});
+}
+function clearPlanFilters(){['planSearch','planJobFilter','planFrom','planTo'].forEach(id=>document.getElementById(id).value='');renderPlans()}
+function savePlanFile(form){
+  const fd=new FormData(form); const file=fd.get('file');
+  if(!file||!file.name){alert('Please select a file');return}
+  if(file.size>2500000 && !confirm('This file is large. Browser storage may fail. Continue?'))return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const record={id:uid(),date:fd.get('date'),jobNo:fd.get('jobNo'),title:fd.get('title')||file.name,filename:file.name,fileType:file.type||'application/octet-stream',fileSize:file.size,dataUrl:ev.target.result,remarks:fd.get('remarks')||'',uploadedAt:new Date().toISOString()};
+    db.planFiles=(db.planFiles||[]).concat(record);
+    try{saveDB();form.reset();form.elements.date.value=today();alert('Daily work plan file saved')}catch(err){db.planFiles=db.planFiles.filter(x=>x.id!==record.id);alert('File not saved. Browser storage limit reached. Try smaller file or use Backup JSON separately.')}
+  };
+  reader.readAsDataURL(file);
+}
+function renderPlanFiles(){
+  const rows=[...(db.planFiles||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const el=document.getElementById('planFilesTable'); if(!el)return;
+  if(!rows.length){el.innerHTML='<tbody><tr><td class="empty">No uploaded plan files found</td></tr></tbody>';return}
+  const cols=['date','jobNo','title','filename','fileSize','remarks'];
+  el.innerHTML='<thead><tr>'+cols.map(c=>`<th>${labelize(c)}</th>`).join('')+'<th>Action</th></tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>`<td>${c==='date'?fmtDate(r[c]):c==='fileSize'?formatBytes(r[c]):escapeHTML(r[c]??'')}</td>`).join('')+`<td><div class="actions"><button class="mini primary" onclick="openPlanFile('${r.id}')">Open</button><button class="mini ghost" onclick="downloadPlanFile('${r.id}')">Download</button><button class="mini danger" onclick="deleteItem('planFiles','${r.id}')">Delete</button></div></td></tr>`).join('')+'</tbody>';
+}
+function formatBytes(n){n=Number(n||0);if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';return (n/1048576).toFixed(2)+' MB'}
+function openPlanFile(id){const f=(db.planFiles||[]).find(x=>x.id===id);if(!f)return;const w=window.open(); if(w){w.document.write(`<title>${escapeHTML(f.filename)}</title><iframe src="${f.dataUrl}" style="border:0;width:100%;height:100vh"></iframe>`)}else alert('Popup blocked. Use Download button.')}
+function downloadPlanFile(id){const f=(db.planFiles||[]).find(x=>x.id===id);if(!f)return;const a=document.createElement('a');a.href=f.dataUrl;a.download=f.filename||'daily-plan-file';a.click()}
+
 function renderJobs(){renderTable('jobsTable',db.jobs,['jobNo','client','equipment','startDate','targetDate','status','remarks'],{status:statusChip,startDate:fmtDate,targetDate:fmtDate})}
 function renderTags(){renderTable('tagsTable',db.tags,['jobNo','tagNo','description','status'],{status:statusChip})}
 function renderWorkers(){let rows=[...db.daily];const q=(document.getElementById('workerSearch')?.value||'').toLowerCase();const job=document.getElementById('workerJobFilter')?.value||'';const from=document.getElementById('workerFrom')?.value||'';const to=document.getElementById('workerTo')?.value||'';rows=rows.filter(x=>(!q||Object.values(x).join(' ').toLowerCase().includes(q))&&(!job||x.jobNo===job)&&(!from||x.date>=from)&&(!to||x.date<=to));const map={};rows.forEach(x=>{const k=`${x.worker}||${x.jobNo}`;if(!map[k])map[k]={worker:x.worker,jobNo:x.jobNo,entries:0,regularHours:0,otHours:0,totalHours:0};map[k].entries++;map[k].regularHours+=Number(x.regularHours||0);map[k].otHours+=Number(x.otHours||0);map[k].totalHours+=Number(x.totalHours||0)});const out=Object.values(map).map(x=>({...x,regularHours:x.regularHours.toFixed(2),otHours:x.otHours.toFixed(2),totalHours:x.totalHours.toFixed(2)})).sort((a,b)=>b.totalHours-a.totalHours);renderSimpleTable('workerTable',out,['worker','jobNo','entries','regularHours','otHours','totalHours'])}
 function renderSimpleTable(id,rows,cols){const el=document.getElementById(id);if(!rows.length){el.innerHTML='<tbody><tr><td class="empty">No records found</td></tr></tbody>';return}el.innerHTML='<thead><tr>'+cols.map(c=>`<th>${labelize(c)}</th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>`<td>${escapeHTML(r[c]??'')}</td>`).join('')+'</tr>').join('')+'</tbody>'}
 function clearWorkerFilters(){['workerSearch','workerJobFilter','workerFrom','workerTo'].forEach(id=>document.getElementById(id).value='');renderWorkers()}
+
+function renderInspectionCalls(){
+  let rows=[...(db.inspectionCalls||[])];
+  const q=(document.getElementById('inspectionSearch')?.value||'').toLowerCase();
+  const job=document.getElementById('inspectionJobFilter')?.value||'';
+  const status=document.getElementById('inspectionStatusFilter')?.value||'';
+  const from=document.getElementById('inspectionFrom')?.value||'';
+  const to=document.getElementById('inspectionTo')?.value||'';
+  rows=rows.filter(x=>(!q||Object.values(x).join(' ').toLowerCase().includes(q))&&(!job||x.jobNo===job)&&(!status||x.callStatus===status)&&(!from||x.date>=from)&&(!to||x.date<=to)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const cols=['date','jobNo','tagNo','callType','jointArea','raisedBy','qcPerson','priority','callStatus','qcResultDate','remarks'];
+  const el=document.getElementById('inspectionCallsTable');
+  if(!rows.length){el.innerHTML='<tbody><tr><td class="empty">No inspection calls found</td></tr></tbody>';return}
+  el.innerHTML='<thead><tr>'+cols.map(c=>`<th>${labelize(c)}</th>`).join('')+'<th>QC Action</th></tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>`<td>${c==='callStatus'?statusChip(r[c]):c==='date'||c==='qcResultDate'?fmtDate(r[c]):escapeHTML(r[c]??'')}</td>`).join('')+`<td>${inspectionActionButtons(r)}</td></tr>`).join('')+'</tbody>';
+}
+function inspectionActionButtons(r){
+  return `<div class="actions"><button class="mini ghost" onclick="editItem('inspectionCalls','${r.id}')">Edit</button><button class="mini primary" onclick="setInspectionStatus('${r.id}','QC Received')">QC Received</button><button class="mini warning" onclick="setInspectionStatus('${r.id}','QC Checking')">Checking</button><button class="mini success" onclick="setInspectionStatus('${r.id}','Completed / Accepted',true)">Complete</button><button class="mini danger" onclick="setInspectionStatus('${r.id}','Rejected / Repair',true)">Repair</button><button class="mini ghost" onclick="copyInspectionMessage('${r.id}')">Copy Msg</button><button class="mini danger" onclick="deleteItem('inspectionCalls','${r.id}')">Delete</button></div>`
+}
+function setInspectionStatus(id,status,withDate=false){
+  db.inspectionCalls=(db.inspectionCalls||[]).map(x=>x.id===id?{...x,callStatus:status,qcResultDate:withDate?(x.qcResultDate||today()):x.qcResultDate}:x);
+  saveDB();
+}
+function copyInspectionMessage(id){
+  const x=(db.inspectionCalls||[]).find(v=>v.id===id); if(!x)return;
+  const msg=`QC Inspection Call\nDate: ${fmtDate(x.date)}\nJob No: ${x.jobNo}\nTag No: ${x.tagNo||'-'}\nCall Type: ${x.callType}\nJoint/Area: ${x.jointArea||'-'}\nStatus: ${x.callStatus}\nRaised By: ${x.raisedBy||'-'}\nQC Person: ${x.qcPerson||'-'}\nRemarks: ${x.remarks||'-'}`;
+  navigator.clipboard.writeText(msg).then(()=>alert('Inspection call message copied'));
+}
+function clearInspectionFilters(){['inspectionSearch','inspectionJobFilter','inspectionStatusFilter','inspectionFrom','inspectionTo'].forEach(id=>document.getElementById(id).value='');renderInspectionCalls()}
 function renderQC(){renderTable('qcTable',db.qc.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')),['date','jobNo','tagNo','inspectionType','qcStatus','tpiStatus','remarks'],{date:fmtDate,qcStatus:statusChip,tpiStatus:statusChip})}
 function renderMaterials(){renderTable('materialsTable',db.materials,['jobNo','materialType','mirNo','qty','receivedDate','status','remarks'],{receivedDate:fmtDate,status:statusChip})}
-function filteredForReport(){const d=document.getElementById('reportDate').value;const j=document.getElementById('reportJob').value;return{date:d,job:j,daily:db.daily.filter(x=>(!d||x.date===d)&&(!j||x.jobNo===j)),qc:db.qc.filter(x=>(!d||x.date===d)&&(!j||x.jobNo===j)),materials:db.materials.filter(x=>(!j||x.jobNo===j))}}
-function generateReport(){const r=filteredForReport();const total=r.daily.reduce((a,b)=>a+Number(b.totalHours||0),0).toFixed(2);const ot=r.daily.reduce((a,b)=>a+Number(b.otHours||0),0).toFixed(2);const workers=[...new Set(r.daily.map(x=>x.worker).filter(Boolean))];const completed=r.daily.filter(x=>x.status==='Completed').length;const pending=r.daily.filter(x=>x.status==='Pending'||x.status==='Hold').length;const workLines=r.daily.map((x,i)=>`${i+1}. Job ${x.jobNo}${x.tagNo?' / Tag '+x.tagNo:''} - ${x.workType}: ${x.description||'Work updated'} (${x.worker}, ${x.totalHours} hrs, OT ${x.otHours} hrs, ${x.status})`).join('\n')||'No daily work entry found for selected date/job.';const qcLines=r.qc.map((x,i)=>`${i+1}. ${x.inspectionType} - QC: ${x.qcStatus}, TPI: ${x.tpiStatus}. ${x.remarks||''}`).join('\n')||'No QC/TPI entry found for selected date/job.';const matPending=r.materials.filter(x=>['Pending','Partially Received','Hold'].includes(x.status));const matLines=matPending.map((x,i)=>`${i+1}. ${x.materialType} / MIR ${x.mirNo||'-'} / Qty ${x.qty||'-'} - ${x.status}. ${x.remarks||''}`).join('\n')||'No pending material found for selected job.';const text=`Dear Sir,\n\nProduction daily tracking update${r.job?' for Job No '+r.job:''} - ${fmtDate(r.date)||'All Dates'}\n\nWork Progress:\n${workLines}\n\nWorker Summary:\n- Total workers involved: ${workers.length}\n- Total working hours: ${total} hrs\n- Total OT hours: ${ot} hrs\n- Completed entries: ${completed}\n- Pending / hold entries: ${pending}\n\nQC / TPI Status:\n${qcLines}\n\nMaterial / MIR Pending Status:\n${matLines}\n\nI will continue tracking and update daily.\n\nRegards,\nManoj`;document.getElementById('reportOutput').textContent=text}
+function filteredForReport(){const d=document.getElementById('reportDate').value;const j=document.getElementById('reportJob').value;return{date:d,job:j,daily:db.daily.filter(x=>(!d||x.date===d)&&(!j||x.jobNo===j)),plans:(db.plans||[]).filter(x=>(!d||x.date===d)&&(!j||x.jobNo===j)),planFiles:(db.planFiles||[]).filter(x=>(!d||x.date===d)&&(!j||x.jobNo===j)),inspectionCalls:(db.inspectionCalls||[]).filter(x=>(!d||x.date===d)&&(!j||x.jobNo===j)),qc:db.qc.filter(x=>(!d||x.date===d)&&(!j||x.jobNo===j)),materials:db.materials.filter(x=>(!j||x.jobNo===j))}}
+function generateReport(){
+  const r=filteredForReport();
+  const total=r.daily.reduce((a,b)=>a+Number(b.totalHours||0),0).toFixed(2);
+  const ot=r.daily.reduce((a,b)=>a+Number(b.otHours||0),0).toFixed(2);
+  const workers=[...new Set(r.daily.map(x=>x.worker).filter(Boolean))];
+  const completed=r.daily.filter(x=>x.status==='Completed').length;
+  const pending=r.daily.filter(x=>x.status==='Pending'||x.status==='Hold').length;
+  const planLines=(r.plans||[]).map((x,i)=>`${i+1}. Job ${x.jobNo}${x.tagNo?' / Tag '+x.tagNo:''} - ${x.workType}: ${x.plannedWork||'Work planned'}${x.plannedWorker?' ('+x.plannedWorker+')':''}${x.targetHours?' Target '+x.targetHours+' hrs':''} - ${x.status}`).join('\n')||'No daily work plan entered for selected date/job.';
+  const fileLines=(r.planFiles||[]).map((x,i)=>`${i+1}. ${x.title||x.filename} - ${x.filename} (${formatBytes(x.fileSize)})`).join('\n')||'No uploaded plan file found for selected date/job.';
+  const workLines=r.daily.map((x,i)=>`${i+1}. Job ${x.jobNo}${x.tagNo?' / Tag '+x.tagNo:''} - ${x.workType}: ${x.description||'Work updated'} (${x.worker}, ${x.totalHours} hrs, OT ${x.otHours} hrs, ${x.status})`).join('\n')||'No daily work entry found for selected date/job.';
+  const callLines=r.inspectionCalls.map((x,i)=>`${i+1}. ${x.callType} - Job ${x.jobNo}${x.tagNo?' / Tag '+x.tagNo:''}${x.jointArea?' / '+x.jointArea:''}: ${x.callStatus}. QC: ${x.qcPerson||'-'}. ${x.remarks||''}`).join('\n')||'No fit-up/welding inspection call found for selected date/job.';
+  const qcLines=r.qc.map((x,i)=>`${i+1}. ${x.inspectionType} - QC: ${x.qcStatus}, TPI: ${x.tpiStatus}. ${x.remarks||''}`).join('\n')||'No QC/TPI entry found for selected date/job.';
+  const matPending=r.materials.filter(x=>['Pending','Partially Received','Hold'].includes(x.status));
+  const matLines=matPending.map((x,i)=>`${i+1}. ${x.materialType} / MIR ${x.mirNo||'-'} / Qty ${x.qty||'-'} - ${x.status}. ${x.remarks||''}`).join('\n')||'No pending material found for selected job.';
+  const text=`Dear Sir,\n\nProduction daily tracking update${r.job?' for Job No '+r.job:''} - ${fmtDate(r.date)||'All Dates'}\n\nDaily Work Plan:\n${planLines}\n\nUploaded Plan Files:\n${fileLines}\n\nActual Work Progress:\n${workLines}\n\nWorker Summary:\n- Total workers involved: ${workers.length}\n- Total working hours: ${total} hrs\n- Total OT hours: ${ot} hrs\n- Completed entries: ${completed}\n- Pending / hold entries: ${pending}\n\nFit-up / Welding Inspection Calls:\n${callLines}\n\nQC / TPI Status:\n${qcLines}\n\nMaterial / MIR Pending Status:\n${matLines}\n\nI will continue tracking and update daily.\n\nRegards,\nManoj`;
+  document.getElementById('reportOutput').textContent=text;
+}
 function copyReport(){navigator.clipboard.writeText(document.getElementById('reportOutput').textContent).then(()=>alert('Report copied'))}
 function printCurrent(){window.print()}
 function toCSV(rows){if(!rows.length)return'';const cols=[...new Set(rows.flatMap(r=>Object.keys(r)))].filter(c=>c!=='id');const esc=v=>'"'+String(v??'').replace(/"/g,'""')+'"';return cols.join(',')+'\n'+rows.map(r=>cols.map(c=>esc(r[c])).join(',')).join('\n')}
@@ -329,10 +486,16 @@ function seedDemoData(force){if(!force && (db.jobs.length||db.daily.length)){ale
 {id:uid(),jobNo:'21/25',tagNo:'21-1/25',description:'Trap-1',status:'In Progress'},
 {id:uid(),jobNo:'21/25',tagNo:'21-2/25',description:'Trap-2',status:'In Progress'},
 {id:uid(),jobNo:'22/25',tagNo:'22/25-TGV',description:'Tube bundle',status:'Pending'}
-];db.daily=[
+];db.plans=[
+{id:uid(),date:today(),jobNo:'21/25',tagNo:'21-1/25',workType:'LS Fit-up',plannedWorker:'Ramesh team',targetHours:'8.5',priority:'Urgent',status:'Planned',plannedWork:'Trap-1 LS fit-up complete panni QC inspection call raise pannanum.'},
+{id:uid(),date:today(),jobNo:'20/25',tagNo:'',workType:'CS Welding',plannedWorker:'Kumar',targetHours:'6',priority:'Normal',status:'In Progress',plannedWork:'RHS dish to shell CS welding visual offer pannanum.'}
+];db.planFiles=[];db.daily=[
 {id:uid(),date:today(),jobNo:'21/25',tagNo:'21-1/25',worker:'Ramesh',workType:'Welding',startTime:'08:30',endTime:'19:00',regularHours:8.5,otHours:2,totalHours:10.5,status:'In Progress',description:'Final run welding balance under progress'},
 {id:uid(),date:today(),jobNo:'21/25',tagNo:'21-2/25',worker:'Suresh',workType:'Grinding',startTime:'08:30',endTime:'17:00',regularHours:8.5,otHours:0,totalHours:8.5,status:'Completed',description:'Wire wheel cleaning completed'},
 {id:uid(),date:today(),jobNo:'20/25',tagNo:'',worker:'Kumar',workType:'Fit-up',startTime:'09:00',endTime:'18:00',regularHours:8,otHours:1,totalHours:9,status:'Completed',description:'Fit-up checked and cleared'}
+];db.inspectionCalls=[
+{id:uid(),date:today(),jobNo:'21/25',tagNo:'21-1/25',callType:'LS Fit-up',jointArea:'LS-1',raisedBy:'Manoj',qcPerson:'Vinoth QC',priority:'Urgent',callStatus:'Call Raised to QC',qcResultDate:'',remarks:'LS fit-up ready. QC inspection need to be raised and checked.'},
+{id:uid(),date:today(),jobNo:'20/25',tagNo:'',callType:'CS Welding Visual',jointArea:'RHS dish to shell',raisedBy:'Manoj',qcPerson:'Vinoth QC',priority:'Normal',callStatus:'Completed / Accepted',qcResultDate:today(),remarks:'QC checked and completed.'}
 ];db.qc=[
 {id:uid(),date:today(),jobNo:'21/25',tagNo:'21-1/25',inspectionType:'Welding Visual',qcStatus:'Raised',tpiStatus:'Pending',remarks:'QC informed, TPI confirmation pending'},
 {id:uid(),date:today(),jobNo:'20/25',tagNo:'',inspectionType:'Hydro Test',qcStatus:'Completed',tpiStatus:'Completed',remarks:'Ready for client review'}
