@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manoj Production ERP</title>
+  <meta name="description" content="Personal production ERP for job-wise fabrication tracking, worker hours, OT, QC/TPI, material and CEO reports." />
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --text:#172033;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#1f6feb;
+      --primary-dark:#1457bc;
+      --accent:#10b981;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+      --soft:#eef6ff;
+      --shadow:0 10px 25px rgba(15,23,42,.08);
+      --radius:18px;
+      --radius-sm:12px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);}
+    .app{display:grid;grid-template-columns:270px 1fr;min-height:100vh;}
+    .sidebar{background:#0f172a;color:#e5e7eb;padding:22px 18px;position:sticky;top:0;height:100vh;overflow:auto;}
+    .brand{display:flex;gap:12px;align-items:center;margin-bottom:24px;}
+    .brand-mark{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#60a5fa,#10b981);display:grid;place-items:center;color:#fff;font-weight:900;font-size:19px;box-shadow:0 10px 20px rgba(16,185,129,.25)}
+    .brand h1{font-size:18px;line-height:1.15;margin:0;color:#fff;}
+    .brand p{font-size:12px;margin:4px 0 0;color:#94a3b8}
+    .nav{display:flex;flex-direction:column;gap:8px}
+    .nav button{width:100%;text-align:left;border:0;border-radius:13px;background:transparent;color:#cbd5e1;padding:12px 13px;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:.18s;}
+    .nav button:hover{background:#1e293b;color:#fff;}
+    .nav button.active{background:linear-gradient(135deg,#1f6feb,#1d4ed8);color:#fff;box-shadow:0 8px 18px rgba(31,111,235,.25)}
+    .side-footer{margin-top:26px;padding:14px;border:1px solid rgba(148,163,184,.2);border-radius:14px;background:rgba(15,23,42,.55);font-size:12px;color:#94a3b8;line-height:1.45}
+    .main{padding:26px;overflow:hidden;}
+    .topbar{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:22px;}
+    .topbar h2{font-size:28px;margin:0 0 4px;letter-spacing:-.02em;}
+    .topbar p{margin:0;color:var(--muted);font-size:14px;}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+    button,.btn{border:0;border-radius:12px;padding:11px 14px;cursor:pointer;font-size:14px;font-weight:650;background:#e5e7eb;color:#111827;transition:.15s;text-decoration:none;display:inline-flex;align-items:center;gap:8px;}
+    button:hover,.btn:hover{transform:translateY(-1px);filter:brightness(.98)}
+    .primary{background:var(--primary);color:white}.primary:hover{background:var(--primary-dark)}
+    .success{background:var(--accent);color:white}.warning{background:var(--warn);color:#111827}.danger{background:var(--danger);color:white}.ghost{background:#fff;border:1px solid var(--line)}
+    .grid{display:grid;gap:18px}.grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid.cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;}
+    .card h3{margin:0 0 14px;font-size:17px;letter-spacing:-.01em}.card small{color:var(--muted)}
+    .kpi{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;min-height:112px;}
+    .kpi .label{color:var(--muted);font-size:13px}.kpi .value{font-size:32px;font-weight:850;margin-top:9px;letter-spacing:-.04em}.kpi .sub{font-size:12px;color:var(--muted);margin-top:5px}.kpi .icon{width:45px;height:45px;border-radius:14px;background:var(--soft);display:grid;place-items:center;font-size:21px}
+    .section{display:none}.section.active{display:block;animation:fade .22s ease}@keyframes fade{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    .form{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:end}.form.two{grid-template-columns:repeat(2,minmax(0,1fr))}.form.three{grid-template-columns:repeat(3,minmax(0,1fr))}.form .full{grid-column:1/-1}
+    label{display:block;font-size:12px;font-weight:750;color:#374151;margin-bottom:6px}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff;color:#111827;font-size:14px;outline:none;}textarea{min-height:90px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:#93c5fd;box-shadow:0 0 0 4px rgba(59,130,246,.12)}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;background:#fff}table{width:100%;border-collapse:collapse;min-width:900px}th,td{padding:12px 13px;border-bottom:1px solid var(--line);font-size:13px;text-align:left;vertical-align:top}th{background:#f8fafc;color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:1}tr:hover td{background:#fafafa}.actions{display:flex;gap:7px;flex-wrap:wrap}.mini{padding:7px 9px;border-radius:9px;font-size:12px}.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:750}.chip.done{background:#dcfce7;color:#166534}.chip.pending{background:#ffedd5;color:#9a3412}.chip.progress{background:#dbeafe;color:#1d4ed8}.chip.hold{background:#fee2e2;color:#991b1b}.chip.default{background:#f1f5f9;color:#475569}
+    .filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:14px}.report-box{border:1px dashed #cbd5e1;border-radius:16px;background:#f8fafc;padding:16px;white-space:pre-wrap;line-height:1.55;font-size:14px;color:#1f2937}.muted{color:var(--muted)}.hide{display:none!important}.print-area{background:white}
+    .bar-list{display:flex;flex-direction:column;gap:10px}.bar-row{display:grid;grid-template-columns:110px 1fr 70px;gap:10px;align-items:center;font-size:13px}.bar{height:11px;background:#e5e7eb;border-radius:999px;overflow:hidden}.bar span{display:block;height:100%;background:linear-gradient(90deg,#1f6feb,#10b981);border-radius:999px}.empty{border:1px dashed #cbd5e1;border-radius:16px;padding:22px;text-align:center;color:#64748b;background:#f8fafc}.notice{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:16px;padding:13px 15px;font-size:13px;line-height:1.5;margin-bottom:16px}.notice strong{color:#7c2d12}
+    @media(max-width:980px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.main{padding:18px}.topbar{align-items:flex-start;flex-direction:column}.toolbar{justify-content:flex-start}.grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr}.form,.form.two,.form.three,.filters{grid-template-columns:1fr}table{min-width:760px}}
+    @media print{.sidebar,.toolbar,.no-print,form,.nav,.topbar p{display:none!important}.app{display:block}.main{padding:0}.card{box-shadow:none;border:0}.section{display:block}.section:not(.active){display:none}.table-wrap{border:0}body{background:#fff}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">MP</div>
+        <div><h1>Manoj Production ERP</h1><p>Fabrication · Welding · QC · MIR</p></div>
+      </div>
+      <nav class="nav" id="nav"></nav>
+      <div class="side-footer">
+        <strong>Own-use ERP v1</strong><br />
+        Data saves in this browser using local storage. Use Backup JSON regularly before clearing browser data.
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSubtitle">Today’s production status and pending work summary.</p>
+        </div>
+        <div class="toolbar no-print">
+          <button class="ghost" onclick="seedDemoData(false)">↻ Load Sample</button>
+          <button class="ghost" onclick="backupJSON()">⬇ Backup</button>
+          <label class="btn ghost" for="restoreFile">⬆ Restore<input class="hide" id="restoreFile" type="file" accept="application/json" onchange="restoreJSON(event)"></label>
+          <button class="primary" onclick="printCurrent()">🖨 Print</button>
+        </div>
+      </div>
+
+      <section id="dashboard" class="section active">
+        <div class="grid cols-4" id="kpiGrid"></div>
+        <div class="grid cols-2" style="margin-top:18px">
+          <div class="card"><h3>Job-wise Hours</h3><div id="jobBars" class="bar-list"></div></div>
+          <div class="card"><h3>Status Summary</h3><div id="statusBars" class="bar-list"></div></div>
+        </div>
+        <div class="card" style="margin-top:18px">
+          <h3>Recent Daily Entries</h3>
+          <div class="table-wrap"><table id="recentTable"></table></div>
+        </div>
+      </section>
+
+      <section id="daily" class="section">
+        <div class="card">
+          <h3>Add Daily Production Entry</h3>
+          <form class="form" id="dailyForm">
+            <div><label>Date</label><input type="date" name="date" required></div>
+            <div><label>Job No</label><select name="jobNo" required></select></div>
+            <div><label>Tag No</label><select name="tagNo"><option value="">No tag</option></select></div>
+            <div><label>Worker Name</label><input name="worker" placeholder="Worker name" required></div>
+            <div><label>Work Type</label><select name="workType"><option>Fit-up</option><option>Welding</option><option>Final Run Welding</option><option>Grinding</option><option>Painting</option><option>Hydro Test</option><option>Material Handling</option><option>Inspection Support</option><option>Other</option></select></div>
+            <div><label>Start Time</label><input type="time" name="startTime" value="08:30" required></div>
+            <div><label>End Time</label><input type="time" name="endTime" value="17:00" required></div>
+            <div><label>Status</label><select name="status"><option>In Progress</option><option>Completed</option><option>Pending</option><option>Hold</option></select></div>
+            <div class="full"><label>Work Description / Remarks</label><textarea name="description" placeholder="Example: Shell final run welding completed, grinding balance."></textarea></div>
+            <div class="full"><button class="primary" type="submit">+ Save Daily Entry</button></div>
+          </form>
+        </div>
+        <div class="card" style="margin-top:18px">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><h3>Daily Entries</h3><button class="ghost" onclick="exportCSV('daily')">Export CSV</button></div>
+          <div class="filters"><input id="dailySearch" oninput="renderDaily()" placeholder="Search job/tag/worker"><select id="dailyJobFilter" onchange="renderDaily()"></select><input id="dailyFrom" onchange="renderDaily()" type="date"><input id="dailyTo" onchange="renderDaily()" type="date"><button onclick="clearDailyFilters()">Clear</button></div>
+          <div class="table-wrap"><table id="dailyTable"></table></div>
+        </div>
+      </section>
+
+      <section id="jobs" class="section">
+        <div class="card">
+          <h3>Add / Update Job Master</h3>
+          <form class="form" id="jobForm">
+            <div><label>Job No</label><input name="jobNo" placeholder="21/25" required></div>
+            <div><label>Client</label><input name="client" placeholder="Client name"></div>
+            <div><label>Equipment</label><input name="equipment" placeholder="Heat Exchanger / Vessel"></div>
+            <div><label>Start Date</label><input type="date" name="startDate"></div>
+            <div><label>Target Date</label><input type="date" name="targetDate"></div>
+            <div><label>Status</label><select name="status"><option>In Progress</option><option>Completed</option><option>Pending</option><option>Hold</option></select></div>
+            <div class="full"><label>Remarks</label><textarea name="remarks"></textarea></div>
+            <div class="full"><button class="primary" type="submit">+ Save Job</button></div>
+          </form>
+        </div>
+        <div class="card" style="margin-top:18px"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h3>Job Master</h3><button class="ghost" onclick="exportCSV('jobs')">Export CSV</button></div><div class="table-wrap"><table id="jobsTable"></table></div></div>
+      </section>
+
+      <section id="tags" class="section">
+        <div class="card">
+          <h3>Add Tag Master</h3>
+          <form class="form" id="tagForm">
+            <div><label>Job No</label><select name="jobNo" required></select></div>
+            <div><label>Tag No</label><input name="tagNo" placeholder="21-1/25" required></div>
+            <div><label>Description</label><input name="description" placeholder="Trap-1 / Shell / Bundle"></div>
+            <div><label>Status</label><select name="status"><option>In Progress</option><option>Completed</option><option>Pending</option><option>Hold</option></select></div>
+            <div class="full"><button class="primary" type="submit">+ Save Tag</button></div>
+          </form>
+        </div>
+        <div class="card" style="margin-top:18px"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h3>Tag Master</h3><button class="ghost" onclick="exportCSV('tags')">Export CSV</button></div><div class="table-wrap"><table id="tagsTable"></table></div></div>
+      </section>
+
+      <section id="workers" class="section">
+        <div class="card">
+          <h3>Worker Hours Report</h3>
+          <div class="notice"><strong>Formula:</strong> Regular hours are counted up to 5:00 PM. Any work after 5:00 PM is counted as OT. Default duty start is 8:30 AM.</div>
+          <div class="filters"><input id="workerSearch" oninput="renderWorkers()" placeholder="Search worker/job"><select id="workerJobFilter" onchange="renderWorkers()"></select><input id="workerFrom" onchange="renderWorkers()" type="date"><input id="workerTo" onchange="renderWorkers()" type="date"><button onclick="clearWorkerFilters()">Clear</button></div>
+          <div style="margin-bottom:12px"><button class="ghost" onclick="exportWorkerReport()">Export Worker Report CSV</button></div>
+          <div class="table-wrap"><table id="workerTable"></table></div>
+        </div>
+      </section>
+
+      <section id="qc" class="section">
+        <div class="card">
+          <h3>QC / TPI Tracking</h3>
+          <form class="form" id="qcForm">
+            <div><label>Date</label><input type="date" name="date" required></div>
+            <div><label>Job No</label><select name="jobNo" required></select></div>
+            <div><label>Tag No</label><select name="tagNo"><option value="">No tag</option></select></div>
+            <div><label>Inspection Type</label><select name="inspectionType"><option>Fit-up</option><option>Welding Visual</option><option>NDT / RT</option><option>Hydro Test</option><option>Painting</option><option>Final Inspection</option><option>Other</option></select></div>
+            <div><label>QC Status</label><select name="qcStatus"><option>Pending</option><option>Raised</option><option>Completed</option><option>Hold</option></select></div>
+            <div><label>TPI Status</label><select name="tpiStatus"><option>Not Required</option><option>Pending</option><option>Call Raised</option><option>Confirmed</option><option>Completed</option></select></div>
+            <div class="full"><label>Remarks</label><textarea name="remarks" placeholder="Example: Witness call raised, TPI confirmation pending."></textarea></div>
+            <div class="full"><button class="primary" type="submit">+ Save QC/TPI</button></div>
+          </form>
+        </div>
+        <div class="card" style="margin-top:18px"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h3>QC / TPI List</h3><button class="ghost" onclick="exportCSV('qc')">Export CSV</button></div><div class="table-wrap"><table id="qcTable"></table></div></div>
+      </section>
+
+      <section id="materials" class="section">
+        <div class="card">
+          <h3>Material / MIR Tracking</h3>
+          <form class="form" id="materialForm">
+            <div><label>Job No</label><select name="jobNo" required></select></div>
+            <div><label>Material Type</label><select name="materialType"><option>Plate</option><option>Pipe</option><option>Flange</option><option>Tube</option><option>Fastener</option><option>Gasket</option><option>Non Pressure Part</option><option>Other</option></select></div>
+            <div><label>MIR No</label><input name="mirNo" placeholder="MIR No"></div>
+            <div><label>Quantity</label><input name="qty" placeholder="Qty"></div>
+            <div><label>Received Date</label><input type="date" name="receivedDate"></div>
+            <div><label>Status</label><select name="status"><option>Pending</option><option>Received</option><option>Partially Received</option><option>Issued</option><option>Hold</option></select></div>
+            <div class="full"><label>Remarks</label><textarea name="remarks"></textarea></div>
+            <div class="full"><button class="primary" type="submit">+ Save Material</button></div>
+          </form>
+        </div>
+        <div class="card" style="margin-top:18px"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h3>Material / MIR List</h3><button class="ghost" onclick="exportCSV('materials')">Export CSV</button></div><div class="table-wrap"><table id="materialsTable"></table></div></div>
+      </section>
+
+      <section id="reports" class="section">
+        <div class="card">
+          <h3>CEO Daily Report Generator</h3>
+          <div class="form three">
+            <div><label>Report Date</label><input id="reportDate" type="date"></div>
+            <div><label>Job No</label><select id="reportJob"></select></div>
+            <div><label>&nbsp;</label><button class="primary" onclick="generateReport()">Generate Report</button></div>
+          </div>
+        </div>
+        <div class="card print-area" style="margin-top:18px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h3>CEO Report</h3><div class="actions no-print"><button onclick="copyReport()" class="ghost">Copy</button><button onclick="printCurrent()" class="primary">Print</button></div></div>
+          <div id="reportOutput" class="report-box">Select date/job and click Generate Report.</div>
+        </div>
+      </section>
+
+      <section id="settings" class="section">
+        <div class="grid cols-2">
+          <div class="card">
+            <h3>Working Time Settings</h3>
+            <form class="form two" id="settingsForm">
+              <div><label>Regular Start</label><input type="time" name="regularStart" value="08:30"></div>
+              <div><label>Regular End / OT Start</label><input type="time" name="regularEnd" value="17:00"></div>
+              <div><label>Default OT End</label><input type="time" name="defaultOTEnd" value="19:00"></div>
+              <div><label>Company / Title</label><input name="company" value="Dynatherm Production Tracking"></div>
+              <div class="full"><button class="primary" type="submit">Save Settings</button></div>
+            </form>
+          </div>
+          <div class="card">
+            <h3>Data Management</h3>
+            <p class="muted">Use these buttons to move the ERP data between systems.</p>
+            <div class="actions"><button class="success" onclick="backupJSON()">Backup JSON</button><label class="btn ghost" for="restoreFile2">Restore JSON<input class="hide" id="restoreFile2" type="file" accept="application/json" onchange="restoreJSON(event)"></label><button class="warning" onclick="seedDemoData(true)">Reset With Sample</button><button class="danger" onclick="clearAllData()">Clear All</button></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+const STORAGE_KEY='manoj_production_erp_v1';
+const sections=[
+  ['dashboard','📊 Dashboard','Today’s production status and pending work summary.'],
+  ['daily','📝 Daily Entry','Add daily job-wise work and worker timing.'],
+  ['jobs','🏭 Job Master','Create and maintain job numbers.'],
+  ['tags','🏷 Tag Master','Create tag numbers linked with jobs.'],
+  ['workers','👷 Worker Hours','Worker-wise regular and OT hours report.'],
+  ['qc','✅ QC / TPI','Inspection and witness call status.'],
+  ['materials','📦 Material / MIR','Material receipt and MIR status.'],
+  ['reports','📄 CEO Report','Generate clean daily report text.'],
+  ['settings','⚙ Settings','Work time and data management.']
+];
+const emptyDB=()=>({
+  settings:{regularStart:'08:30',regularEnd:'17:00',defaultOTEnd:'19:00',company:'Dynatherm Production Tracking'},
+  jobs:[],tags:[],daily:[],qc:[],materials:[]
+});
+let db=loadDB();
+let editing={jobs:null,tags:null,daily:null,qc:null,materials:null};
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function today(){return new Date().toISOString().slice(0,10)}
+function loadDB(){try{const raw=localStorage.getItem(STORAGE_KEY);return raw?JSON.parse(raw):emptyDB()}catch(e){return emptyDB()}}
+function saveDB(){localStorage.setItem(STORAGE_KEY,JSON.stringify(db));renderAll()}
+function fmtDate(d){if(!d)return'';const [y,m,day]=d.split('-');return `${day}-${m}-${y}`}
+function statusChip(v){const x=(v||'').toLowerCase();let cls='default';if(x.includes('complete')||x.includes('received')||x.includes('issued')||x.includes('confirmed'))cls='done';else if(x.includes('progress')||x.includes('raised')||x.includes('partial')||x.includes('call'))cls='progress';else if(x.includes('hold'))cls='hold';else if(x.includes('pending')||x.includes('not'))cls='pending';return `<span class="chip ${cls}">${v||'-'}</span>`}
+function minutes(t){if(!t)return 0;let [h,m]=t.split(':').map(Number);return h*60+m}
+function hrs(n){return Math.round((n/60)*100)/100}
+function calcTime(start,end){let s=minutes(start),e=minutes(end);if(e<s)e+=1440;const regEnd=minutes(db.settings.regularEnd||'17:00');const regular=Math.max(0,Math.min(e,regEnd)-s);const ot=Math.max(0,e-Math.max(s,regEnd));return{regular:hrs(regular),ot:hrs(ot),total:hrs(e-s)}}
+function groupSum(arr,keyFn,valFn){const m={};arr.forEach(x=>{const k=keyFn(x)||'Blank';m[k]=(m[k]||0)+Number(valFn(x)||0)});return m}
+function setNav(){document.getElementById('nav').innerHTML=sections.map(s=>`<button class="${s[0]==='dashboard'?'active':''}" onclick="showSection('${s[0]}')"><span>${s[1]}</span></button>`).join('')}
+function showSection(id){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach((b,i)=>b.classList.toggle('active',sections[i][0]===id));const s=sections.find(x=>x[0]===id);document.getElementById('pageTitle').textContent=s[1].replace(/^[^ ]+ /,'');document.getElementById('pageSubtitle').textContent=s[2];renderAll()}
+function fillSelect(sel,items,placeholder='All'){const el=typeof sel==='string'?document.querySelector(sel):sel;if(!el)return;const current=el.value;el.innerHTML=`<option value="">${placeholder}</option>`+items.map(v=>`<option value="${escapeHTML(v)}">${escapeHTML(v)}</option>`).join('');if(items.includes(current))el.value=current}
+function fillJobSelects(){const jobs=db.jobs.map(j=>j.jobNo).sort();document.querySelectorAll('select[name="jobNo"],#dailyJobFilter,#workerJobFilter,#reportJob').forEach(el=>fillSelect(el,jobs,el.id&&el.id.includes('Filter')?'All Jobs':'Select Job'));fillTagSelects()}
+function fillTagSelects(){const tags=db.tags.map(t=>t.tagNo).sort();document.querySelectorAll('select[name="tagNo"]').forEach(el=>fillSelect(el,tags,'No tag'))}
+function escapeHTML(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function formData(form){return Object.fromEntries(new FormData(form).entries())}
+function setForm(form,obj){Object.keys(obj||{}).forEach(k=>{if(form.elements[k])form.elements[k].value=obj[k]??''})}
+function resetForm(form){form.reset(); if(form.elements.date)form.elements.date.value=today();}
+function deleteItem(type,id){if(confirm('Delete this record?')){db[type]=db[type].filter(x=>x.id!==id);saveDB()}}
+function editItem(type,id){const item=db[type].find(x=>x.id===id);editing[type]=id;const form=document.getElementById(type==='daily'?'dailyForm':type==='jobs'?'jobForm':type==='tags'?'tagForm':type==='qc'?'qcForm':'materialForm');setForm(form,item);window.scrollTo({top:0,behavior:'smooth'})}
+function upsert(type,item){if(editing[type]){db[type]=db[type].map(x=>x.id===editing[type]?{...x,...item,id:editing[type]}:x);editing[type]=null}else{db[type].push({...item,id:uid()})}saveDB()}
+function initForms(){
+  ['dailyForm','qcForm'].forEach(id=>{const f=document.getElementById(id); if(f.elements.date)f.elements.date.value=today()});
+  document.getElementById('reportDate').value=today();
+  document.getElementById('jobForm').onsubmit=e=>{e.preventDefault();upsert('jobs',formData(e.target));e.target.reset()};
+  document.getElementById('tagForm').onsubmit=e=>{e.preventDefault();upsert('tags',formData(e.target));e.target.reset()};
+  document.getElementById('dailyForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);const t=calcTime(d.startTime,d.endTime);upsert('daily',{...d,regularHours:t.regular,otHours:t.ot,totalHours:t.total});resetForm(e.target)};
+  document.getElementById('qcForm').onsubmit=e=>{e.preventDefault();upsert('qc',formData(e.target));resetForm(e.target)};
+  document.getElementById('materialForm').onsubmit=e=>{e.preventDefault();upsert('materials',formData(e.target));e.target.reset()};
+  document.getElementById('settingsForm').onsubmit=e=>{e.preventDefault();db.settings=formData(e.target);saveDB();alert('Settings saved')};
+}
+function renderAll(){fillJobSelects();renderDashboard();renderDaily();renderJobs();renderTags();renderWorkers();renderQC();renderMaterials();loadSettingsForm()}
+function loadSettingsForm(){const f=document.getElementById('settingsForm');setForm(f,db.settings)}
+function renderDashboard(){
+  const totalHours=db.daily.reduce((a,b)=>a+Number(b.totalHours||0),0);const otHours=db.daily.reduce((a,b)=>a+Number(b.otHours||0),0);const pendingQC=db.qc.filter(x=>['Pending','Raised','Call Raised'].includes(x.qcStatus)||['Pending','Call Raised','Confirmed'].includes(x.tpiStatus)).length;const pendingMat=db.materials.filter(x=>['Pending','Partially Received','Hold'].includes(x.status)).length;const todayEntries=db.daily.filter(x=>x.date===today()).length;
+  const cards=[['Total Jobs',db.jobs.length,'Active job master records','🏭'],['Total Work Hours',totalHours.toFixed(2),'Regular + OT from daily entries','⏱'],['Total OT Hours',otHours.toFixed(2),'After 5:00 PM calculation','🌙'],['Pending Alerts',pendingQC+pendingMat,`QC/TPI ${pendingQC} · Material ${pendingMat}`,'⚠']];
+  document.getElementById('kpiGrid').innerHTML=cards.map(c=>`<div class="card kpi"><div><div class="label">${c[0]}</div><div class="value">${c[1]}</div><div class="sub">${c[2]}</div></div><div class="icon">${c[3]}</div></div>`).join('')+`<div class="card kpi"><div><div class="label">Today Entries</div><div class="value">${todayEntries}</div><div class="sub">${fmtDate(today())}</div></div><div class="icon">📌</div></div>`;
+  renderBars('jobBars',groupSum(db.daily,x=>x.jobNo,x=>x.totalHours),'hrs');
+  const statusMap={};[...db.jobs,...db.tags,...db.daily].forEach(x=>{statusMap[x.status||'Blank']=(statusMap[x.status||'Blank']||0)+1});renderBars('statusBars',statusMap,'records');
+  renderTable('recentTable',db.daily.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,8),['date','jobNo','tagNo','worker','workType','totalHours','otHours','status'],{status:statusChip,date:fmtDate});
+}
+function renderBars(id,obj,suffix){const el=document.getElementById(id);const entries=Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,8);if(!entries.length){el.innerHTML='<div class="empty">No data yet</div>';return}const max=Math.max(...entries.map(x=>x[1]),1);el.innerHTML=entries.map(([k,v])=>`<div class="bar-row"><div title="${escapeHTML(k)}">${escapeHTML(k)}</div><div class="bar"><span style="width:${Math.max(5,(v/max)*100)}%"></span></div><strong>${Number(v).toFixed(suffix==='hrs'?1:0)} ${suffix}</strong></div>`).join('')}
+function renderTable(id,rows,cols,formatters={}){const el=document.getElementById(id);if(!rows.length){el.innerHTML='<tbody><tr><td class="empty">No records found</td></tr></tbody>';return}el.innerHTML='<thead><tr>'+cols.map(c=>`<th>${labelize(c)}</th>`).join('')+'<th>Action</th></tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>`<td>${formatters[c]?formatters[c](r[c],r):escapeHTML(r[c]??'')}</td>`).join('')+`<td>${actionButtons(id,r.id)}</td></tr>`).join('')+'</tbody>'}
+function actionButtons(tableId,id){const map={dailyTable:'daily',jobsTable:'jobs',tagsTable:'tags',qcTable:'qc',materialsTable:'materials'};const type=map[tableId]||'';if(!type)return'';return `<div class="actions"><button class="mini ghost" onclick="editItem('${type}','${id}')">Edit</button><button class="mini danger" onclick="deleteItem('${type}','${id}')">Delete</button></div>`}
+function labelize(s){return String(s).replace(/([A-Z])/g,' $1').replace(/^./,m=>m.toUpperCase())}
+function renderDaily(){let rows=[...db.daily];const q=(document.getElementById('dailySearch')?.value||'').toLowerCase();const job=document.getElementById('dailyJobFilter')?.value||'';const from=document.getElementById('dailyFrom')?.value||'';const to=document.getElementById('dailyTo')?.value||'';rows=rows.filter(x=>(!q||Object.values(x).join(' ').toLowerCase().includes(q))&&(!job||x.jobNo===job)&&(!from||x.date>=from)&&(!to||x.date<=to)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));renderTable('dailyTable',rows,['date','jobNo','tagNo','worker','workType','startTime','endTime','regularHours','otHours','totalHours','status','description'],{status:statusChip,date:fmtDate})}
+function clearDailyFilters(){['dailySearch','dailyJobFilter','dailyFrom','dailyTo'].forEach(id=>document.getElementById(id).value='');renderDaily()}
+function renderJobs(){renderTable('jobsTable',db.jobs,['jobNo','client','equipment','startDate','targetDate','status','remarks'],{status:statusChip,startDate:fmtDate,targetDate:fmtDate})}
+function renderTags(){renderTable('tagsTable',db.tags,['jobNo','tagNo','description','status'],{status:statusChip})}
+function renderWorkers(){let rows=[...db.daily];const q=(document.getElementById('workerSearch')?.value||'').toLowerCase();const job=document.getElementById('workerJobFilter')?.value||'';const from=document.getElementById('workerFrom')?.value||'';const to=document.getElementById('workerTo')?.value||'';rows=rows.filter(x=>(!q||Object.values(x).join(' ').toLowerCase().includes(q))&&(!job||x.jobNo===job)&&(!from||x.date>=from)&&(!to||x.date<=to));const map={};rows.forEach(x=>{const k=`${x.worker}||${x.jobNo}`;if(!map[k])map[k]={worker:x.worker,jobNo:x.jobNo,entries:0,regularHours:0,otHours:0,totalHours:0};map[k].entries++;map[k].regularHours+=Number(x.regularHours||0);map[k].otHours+=Number(x.otHours||0);map[k].totalHours+=Number(x.totalHours||0)});const out=Object.values(map).map(x=>({...x,regularHours:x.regularHours.toFixed(2),otHours:x.otHours.toFixed(2),totalHours:x.totalHours.toFixed(2)})).sort((a,b)=>b.totalHours-a.totalHours);renderSimpleTable('workerTable',out,['worker','jobNo','entries','regularHours','otHours','totalHours'])}
+function renderSimpleTable(id,rows,cols){const el=document.getElementById(id);if(!rows.length){el.innerHTML='<tbody><tr><td class="empty">No records found</td></tr></tbody>';return}el.innerHTML='<thead><tr>'+cols.map(c=>`<th>${labelize(c)}</th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>`<td>${escapeHTML(r[c]??'')}</td>`).join('')+'</tr>').join('')+'</tbody>'}
+function clearWorkerFilters(){['workerSearch','workerJobFilter','workerFrom','workerTo'].forEach(id=>document.getElementById(id).value='');renderWorkers()}
+function renderQC(){renderTable('qcTable',db.qc.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')),['date','jobNo','tagNo','inspectionType','qcStatus','tpiStatus','remarks'],{date:fmtDate,qcStatus:statusChip,tpiStatus:statusChip})}
+function renderMaterials(){renderTable('materialsTable',db.materials,['jobNo','materialType','mirNo','qty','receivedDate','status','remarks'],{receivedDate:fmtDate,status:statusChip})}
+function filteredForReport(){const d=document.getElementById('reportDate').value;const j=document.getElementById('reportJob').value;return{date:d,job:j,daily:db.daily.filter(x=>(!d||x.date===d)&&(!j||x.jobNo===j)),qc:db.qc.filter(x=>(!d||x.date===d)&&(!j||x.jobNo===j)),materials:db.materials.filter(x=>(!j||x.jobNo===j))}}
+function generateReport(){const r=filteredForReport();const total=r.daily.reduce((a,b)=>a+Number(b.totalHours||0),0).toFixed(2);const ot=r.daily.reduce((a,b)=>a+Number(b.otHours||0),0).toFixed(2);const workers=[...new Set(r.daily.map(x=>x.worker).filter(Boolean))];const completed=r.daily.filter(x=>x.status==='Completed').length;const pending=r.daily.filter(x=>x.status==='Pending'||x.status==='Hold').length;const workLines=r.daily.map((x,i)=>`${i+1}. Job ${x.jobNo}${x.tagNo?' / Tag '+x.tagNo:''} - ${x.workType}: ${x.description||'Work updated'} (${x.worker}, ${x.totalHours} hrs, OT ${x.otHours} hrs, ${x.status})`).join('\n')||'No daily work entry found for selected date/job.';const qcLines=r.qc.map((x,i)=>`${i+1}. ${x.inspectionType} - QC: ${x.qcStatus}, TPI: ${x.tpiStatus}. ${x.remarks||''}`).join('\n')||'No QC/TPI entry found for selected date/job.';const matPending=r.materials.filter(x=>['Pending','Partially Received','Hold'].includes(x.status));const matLines=matPending.map((x,i)=>`${i+1}. ${x.materialType} / MIR ${x.mirNo||'-'} / Qty ${x.qty||'-'} - ${x.status}. ${x.remarks||''}`).join('\n')||'No pending material found for selected job.';const text=`Dear Sir,\n\nProduction daily tracking update${r.job?' for Job No '+r.job:''} - ${fmtDate(r.date)||'All Dates'}\n\nWork Progress:\n${workLines}\n\nWorker Summary:\n- Total workers involved: ${workers.length}\n- Total working hours: ${total} hrs\n- Total OT hours: ${ot} hrs\n- Completed entries: ${completed}\n- Pending / hold entries: ${pending}\n\nQC / TPI Status:\n${qcLines}\n\nMaterial / MIR Pending Status:\n${matLines}\n\nI will continue tracking and update daily.\n\nRegards,\nManoj`;document.getElementById('reportOutput').textContent=text}
+function copyReport(){navigator.clipboard.writeText(document.getElementById('reportOutput').textContent).then(()=>alert('Report copied'))}
+function printCurrent(){window.print()}
+function toCSV(rows){if(!rows.length)return'';const cols=[...new Set(rows.flatMap(r=>Object.keys(r)))].filter(c=>c!=='id');const esc=v=>'"'+String(v??'').replace(/"/g,'""')+'"';return cols.join(',')+'\n'+rows.map(r=>cols.map(c=>esc(r[c])).join(',')).join('\n')}
+function download(name,text,type='text/plain'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href)}
+function exportCSV(type){download(`manoj_erp_${type}.csv`,toCSV(db[type]||[]),'text/csv')}
+function exportWorkerReport(){let rows=[];const old=document.getElementById('workerTable').querySelectorAll('tbody tr');old.forEach(tr=>{const cells=[...tr.children].map(td=>td.textContent);if(cells.length===6)rows.push({worker:cells[0],jobNo:cells[1],entries:cells[2],regularHours:cells[3],otHours:cells[4],totalHours:cells[5]})});download('manoj_erp_worker_report.csv',toCSV(rows),'text/csv')}
+function backupJSON(){download(`manoj_production_erp_backup_${today()}.json`,JSON.stringify(db,null,2),'application/json')}
+function restoreJSON(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{try{db=JSON.parse(ev.target.result);saveDB();alert('Backup restored')}catch(err){alert('Invalid JSON backup')}};reader.readAsText(file);e.target.value=''}
+function clearAllData(){if(confirm('This will delete all ERP records from this browser. Continue?')){db=emptyDB();saveDB()}}
+function seedDemoData(force){if(!force && (db.jobs.length||db.daily.length)){alert('Data already available. Use Settings > Reset With Sample if needed.');return}db=emptyDB();db.jobs=[
+{id:uid(),jobNo:'20/25',client:'Client',equipment:'Heat Exchanger',startDate:'2026-05-01',targetDate:'2026-06-15',status:'In Progress',remarks:'Daily tracking started'},
+{id:uid(),jobNo:'21/25',client:'Client',equipment:'Liquid Chlorine Trap',startDate:'2026-05-05',targetDate:'2026-06-20',status:'In Progress',remarks:'Trap 1 and Trap 2'},
+{id:uid(),jobNo:'22/25',client:'Client',equipment:'Tube Bundle',startDate:'2026-05-10',targetDate:'2026-06-25',status:'Pending',remarks:''},
+{id:uid(),jobNo:'01/26',client:'Client',equipment:'Pressure Vessel',startDate:'2026-05-18',targetDate:'2026-07-05',status:'In Progress',remarks:''}
+];db.tags=[
+{id:uid(),jobNo:'21/25',tagNo:'21-1/25',description:'Trap-1',status:'In Progress'},
+{id:uid(),jobNo:'21/25',tagNo:'21-2/25',description:'Trap-2',status:'In Progress'},
+{id:uid(),jobNo:'22/25',tagNo:'22/25-TGV',description:'Tube bundle',status:'Pending'}
+];db.daily=[
+{id:uid(),date:today(),jobNo:'21/25',tagNo:'21-1/25',worker:'Ramesh',workType:'Welding',startTime:'08:30',endTime:'19:00',regularHours:8.5,otHours:2,totalHours:10.5,status:'In Progress',description:'Final run welding balance under progress'},
+{id:uid(),date:today(),jobNo:'21/25',tagNo:'21-2/25',worker:'Suresh',workType:'Grinding',startTime:'08:30',endTime:'17:00',regularHours:8.5,otHours:0,totalHours:8.5,status:'Completed',description:'Wire wheel cleaning completed'},
+{id:uid(),date:today(),jobNo:'20/25',tagNo:'',worker:'Kumar',workType:'Fit-up',startTime:'09:00',endTime:'18:00',regularHours:8,otHours:1,totalHours:9,status:'Completed',description:'Fit-up checked and cleared'}
+];db.qc=[
+{id:uid(),date:today(),jobNo:'21/25',tagNo:'21-1/25',inspectionType:'Welding Visual',qcStatus:'Raised',tpiStatus:'Pending',remarks:'QC informed, TPI confirmation pending'},
+{id:uid(),date:today(),jobNo:'20/25',tagNo:'',inspectionType:'Hydro Test',qcStatus:'Completed',tpiStatus:'Completed',remarks:'Ready for client review'}
+];db.materials=[
+{id:uid(),jobNo:'21/25',materialType:'Gasket',mirNo:'MIR-04',qty:'1 Set',receivedDate:'',status:'Pending',remarks:'Required before final assembly'},
+{id:uid(),jobNo:'22/25',materialType:'Plate',mirNo:'MIR-01',qty:'2 Nos',receivedDate:'2026-05-20',status:'Received',remarks:''}
+];saveDB()}
+window.addEventListener('load',()=>{setNav();initForms();if(!localStorage.getItem(STORAGE_KEY))seedDemoData(true);else renderAll();});
+</script>
+</body>
+</html>
