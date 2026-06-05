@@ -3,64 +3,93 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manoj Production ERP</title>
+  <title>Manoj Production ERP - Control Center View</title>
   <meta name="description" content="Personal production ERP for job-wise fabrication tracking, worker hours, OT, daily work plan uploads, fit-up inspection calls, QC/TPI, material and CEO reports." />
   <style>
     :root{
-      --bg:#f4f7fb;
+      --bg:#eef3fb;
       --card:#ffffff;
-      --text:#172033;
-      --muted:#6b7280;
-      --line:#e5e7eb;
-      --primary:#1f6feb;
-      --primary-dark:#1457bc;
-      --accent:#10b981;
+      --text:#111827;
+      --muted:#64748b;
+      --line:#e2e8f0;
+      --primary:#0f4c81;
+      --primary-dark:#08375f;
+      --accent:#16a34a;
       --warn:#f59e0b;
-      --danger:#ef4444;
-      --soft:#eef6ff;
-      --shadow:0 10px 25px rgba(15,23,42,.08);
-      --radius:18px;
-      --radius-sm:12px;
+      --danger:#dc2626;
+      --soft:#e0f2fe;
+      --shadow:0 16px 40px rgba(15,23,42,.10);
+      --radius:22px;
+      --radius-sm:14px;
+      --sidebar:#ffffff;
+      --hero1:#0f172a;
+      --hero2:#0f4c81;
     }
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
-    body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);}
-    .app{display:grid;grid-template-columns:270px 1fr;min-height:100vh;}
-    .sidebar{background:#0f172a;color:#e5e7eb;padding:22px 18px;position:sticky;top:0;height:100vh;overflow:auto;}
-    .brand{display:flex;gap:12px;align-items:center;margin-bottom:24px;}
-    .brand-mark{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#60a5fa,#10b981);display:grid;place-items:center;color:#fff;font-weight:900;font-size:19px;box-shadow:0 10px 20px rgba(16,185,129,.25)}
-    .brand h1{font-size:18px;line-height:1.15;margin:0;color:#fff;}
-    .brand p{font-size:12px;margin:4px 0 0;color:#94a3b8}
+    body{
+      margin:0;
+      font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(14,165,233,.18), transparent 36%),
+        radial-gradient(circle at top right, rgba(22,163,74,.12), transparent 34%),
+        var(--bg);
+    }
+    .app{display:grid;grid-template-columns:292px 1fr;min-height:100vh;}
+    .sidebar{
+      background:var(--sidebar);
+      color:#0f172a;
+      padding:20px 16px;
+      position:sticky;
+      top:0;
+      height:100vh;
+      overflow:auto;
+      border-right:1px solid rgba(148,163,184,.30);
+      box-shadow:8px 0 30px rgba(15,23,42,.04);
+    }
+    .brand{
+      display:flex;gap:12px;align-items:center;margin-bottom:18px;
+      padding:14px;border-radius:22px;
+      background:linear-gradient(135deg,var(--hero1),var(--hero2));
+      box-shadow:0 16px 30px rgba(15,76,129,.22);
+    }
+    .brand-mark{width:48px;height:48px;border-radius:16px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);display:grid;place-items:center;color:#fff;font-weight:900;font-size:19px;box-shadow:0 10px 20px rgba(0,0,0,.18)}
+    .brand h1{font-size:17px;line-height:1.15;margin:0;color:#fff;letter-spacing:-.02em;}
+    .brand p{font-size:12px;margin:4px 0 0;color:#bfdbfe}
     .nav{display:flex;flex-direction:column;gap:8px}
-    .nav button{width:100%;text-align:left;border:0;border-radius:13px;background:transparent;color:#cbd5e1;padding:12px 13px;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:.18s;}
-    .nav button:hover{background:#1e293b;color:#fff;}
-    .nav button.active{background:linear-gradient(135deg,#1f6feb,#1d4ed8);color:#fff;box-shadow:0 8px 18px rgba(31,111,235,.25)}
-    .side-footer{margin-top:26px;padding:14px;border:1px solid rgba(148,163,184,.2);border-radius:14px;background:rgba(15,23,42,.55);font-size:12px;color:#94a3b8;line-height:1.45}
-    .main{padding:26px;overflow:hidden;}
-    .topbar{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:22px;}
-    .topbar h2{font-size:28px;margin:0 0 4px;letter-spacing:-.02em;}
-    .topbar p{margin:0;color:var(--muted);font-size:14px;}
+    .nav button{width:100%;text-align:left;border:1px solid transparent;border-radius:15px;background:transparent;color:#334155;padding:12px 13px;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:.18s;font-weight:750;}
+    .nav button:hover{background:#f1f5f9;color:#0f172a;border-color:#e2e8f0;transform:translateX(2px)}
+    .nav button.active{background:#e0f2fe;color:#0f4c81;border-color:#bae6fd;box-shadow:0 10px 18px rgba(14,165,233,.13)}
+    .side-footer{margin-top:20px;padding:14px;border:1px solid #e2e8f0;border-radius:18px;background:#f8fafc;font-size:12px;color:#64748b;line-height:1.45}
+    .main{padding:24px;overflow:hidden;}
+    .topbar{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:22px;background:linear-gradient(135deg,var(--hero1),var(--hero2));border-radius:28px;padding:22px 24px;box-shadow:0 18px 40px rgba(15,76,129,.20);color:white;}
+    .topbar h2{font-size:30px;margin:0 0 4px;letter-spacing:-.03em;color:#fff;}
+    .topbar p{margin:0;color:#dbeafe;font-size:14px;}
     .toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
-    button,.btn{border:0;border-radius:12px;padding:11px 14px;cursor:pointer;font-size:14px;font-weight:650;background:#e5e7eb;color:#111827;transition:.15s;text-decoration:none;display:inline-flex;align-items:center;gap:8px;}
+    button,.btn{border:0;border-radius:13px;padding:11px 14px;cursor:pointer;font-size:14px;font-weight:750;background:#e5e7eb;color:#111827;transition:.15s;text-decoration:none;display:inline-flex;align-items:center;gap:8px;}
     button:hover,.btn:hover{transform:translateY(-1px);filter:brightness(.98)}
     .primary{background:var(--primary);color:white}.primary:hover{background:var(--primary-dark)}
-    .success{background:var(--accent);color:white}.warning{background:var(--warn);color:#111827}.danger{background:var(--danger);color:white}.ghost{background:#fff;border:1px solid var(--line)}
+    .success{background:var(--accent);color:white}.warning{background:var(--warn);color:#111827}.danger{background:var(--danger);color:white}.ghost{background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.55);color:#0f172a}.card .ghost{background:#fff;border:1px solid var(--line)}
     .grid{display:grid;gap:18px}.grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid.cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;}
+    .card{background:rgba(255,255,255,.96);border:1px solid rgba(226,232,240,.9);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;backdrop-filter:blur(10px);}
     .card h3{margin:0 0 14px;font-size:17px;letter-spacing:-.01em}.card small{color:var(--muted)}
-    .kpi{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;min-height:112px;}
-    .kpi .label{color:var(--muted);font-size:13px}.kpi .value{font-size:32px;font-weight:850;margin-top:9px;letter-spacing:-.04em}.kpi .sub{font-size:12px;color:var(--muted);margin-top:5px}.kpi .icon{width:45px;height:45px;border-radius:14px;background:var(--soft);display:grid;place-items:center;font-size:21px}
+    .kpi{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;min-height:114px;border-top:4px solid #bae6fd;}
+    .kpi .label{color:var(--muted);font-size:13px;font-weight:800}.kpi .value{font-size:34px;font-weight:900;margin-top:9px;letter-spacing:-.05em}.kpi .sub{font-size:12px;color:var(--muted);margin-top:5px}.kpi .icon{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,#e0f2fe,#dcfce7);display:grid;place-items:center;font-size:22px}
+    .quick-panel{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;margin-bottom:18px;}
+    .quick-hero{border-radius:26px;padding:20px;background:linear-gradient(135deg,#ffffff,#eff6ff);border:1px solid #dbeafe;box-shadow:var(--shadow);}
+    .quick-hero h3{font-size:22px;margin:0 0 6px;letter-spacing:-.03em}.quick-hero p{margin:0;color:#64748b;line-height:1.45}.quick-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.quick-stat{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.mini-stat{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:0 10px 22px rgba(15,23,42,.05)}.mini-stat strong{display:block;font-size:25px;letter-spacing:-.04em}.mini-stat span{font-size:12px;color:#64748b;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
     .section{display:none}.section.active{display:block;animation:fade .22s ease}@keyframes fade{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
     .form{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:end}.form.two{grid-template-columns:repeat(2,minmax(0,1fr))}.form.three{grid-template-columns:repeat(3,minmax(0,1fr))}.form .full{grid-column:1/-1}
-    label{display:block;font-size:12px;font-weight:750;color:#374151;margin-bottom:6px}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff;color:#111827;font-size:14px;outline:none;}textarea{min-height:90px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:#93c5fd;box-shadow:0 0 0 4px rgba(59,130,246,.12)}
-    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;background:#fff}table{width:100%;border-collapse:collapse;min-width:900px}th,td{padding:12px 13px;border-bottom:1px solid var(--line);font-size:13px;text-align:left;vertical-align:top}th{background:#f8fafc;color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:1}tr:hover td{background:#fafafa}.actions{display:flex;gap:7px;flex-wrap:wrap}.mini{padding:7px 9px;border-radius:9px;font-size:12px}.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:750}.chip.done{background:#dcfce7;color:#166534}.chip.pending{background:#ffedd5;color:#9a3412}.chip.progress{background:#dbeafe;color:#1d4ed8}.chip.hold{background:#fee2e2;color:#991b1b}.chip.default{background:#f1f5f9;color:#475569}
-    .filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:14px}.report-box{border:1px dashed #cbd5e1;border-radius:16px;background:#f8fafc;padding:16px;white-space:pre-wrap;line-height:1.55;font-size:14px;color:#1f2937}.muted{color:var(--muted)}.hide{display:none!important}.print-area{background:white}
-    .bar-list{display:flex;flex-direction:column;gap:10px}.bar-row{display:grid;grid-template-columns:110px 1fr 70px;gap:10px;align-items:center;font-size:13px}.bar{height:11px;background:#e5e7eb;border-radius:999px;overflow:hidden}.bar span{display:block;height:100%;background:linear-gradient(90deg,#1f6feb,#10b981);border-radius:999px}.empty{border:1px dashed #cbd5e1;border-radius:16px;padding:22px;text-align:center;color:#64748b;background:#f8fafc}.notice{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:16px;padding:13px 15px;font-size:13px;line-height:1.5;margin-bottom:16px}.notice strong{color:#7c2d12}
-
-    .call-status{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:10px 0 14px}.call-status button{justify-content:center;padding:9px 10px;font-size:12px}.call-status .active-step{outline:3px solid rgba(31,111,235,.18);background:#dbeafe;color:#1d4ed8}.message-box{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:12px;white-space:pre-wrap;font-size:13px;line-height:1.5}
-    .file-pill{display:inline-flex;align-items:center;gap:7px;background:#eef2ff;color:#3730a3;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:750}.file-note{font-size:12px;color:#64748b;line-height:1.45;margin-top:7px}
-    @media(max-width:980px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.main{padding:18px}.topbar{align-items:flex-start;flex-direction:column}.toolbar{justify-content:flex-start}.grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr}.form,.form.two,.form.three,.filters{grid-template-columns:1fr}.call-status{grid-template-columns:1fr 1fr}table{min-width:760px}}
-    @media print{.sidebar,.toolbar,.no-print,form,.nav,.topbar p{display:none!important}.app{display:block}.main{padding:0}.card{box-shadow:none;border:0}.section{display:block}.section:not(.active){display:none}.table-wrap{border:0}body{background:#fff}}
+    label{display:block;font-size:12px;font-weight:800;color:#334155;margin-bottom:6px}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:11px 12px;background:#fff;color:#111827;font-size:14px;outline:none;}textarea{min-height:90px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:#7dd3fc;box-shadow:0 0 0 4px rgba(14,165,233,.13)}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:18px;background:#fff}table{width:100%;border-collapse:collapse;min-width:900px}th,td{padding:12px 13px;border-bottom:1px solid var(--line);font-size:13px;text-align:left;vertical-align:top}th{background:#f1f5f9;color:#334155;font-size:12px;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:1}tr:hover td{background:#f8fafc}.actions{display:flex;gap:7px;flex-wrap:wrap}.mini{padding:7px 9px;border-radius:10px;font-size:12px}.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800}.chip.done{background:#dcfce7;color:#166534}.chip.pending{background:#ffedd5;color:#9a3412}.chip.progress{background:#dbeafe;color:#1d4ed8}.chip.hold{background:#fee2e2;color:#991b1b}.chip.default{background:#f1f5f9;color:#475569}
+    .filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:14px}.report-box{border:1px dashed #cbd5e1;border-radius:18px;background:#f8fafc;padding:16px;white-space:pre-wrap;line-height:1.55;font-size:14px;color:#1f2937}.muted{color:var(--muted)}.hide{display:none!important}.print-area{background:white}
+    .bar-list{display:flex;flex-direction:column;gap:10px}.bar-row{display:grid;grid-template-columns:110px 1fr 70px;gap:10px;align-items:center;font-size:13px}.bar{height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden}.bar span{display:block;height:100%;background:linear-gradient(90deg,#0f4c81,#16a34a);border-radius:999px}.empty{border:1px dashed #cbd5e1;border-radius:18px;padding:22px;text-align:center;color:#64748b;background:#f8fafc}.notice{background:#f0f9ff;border:1px solid #bae6fd;color:#075985;border-radius:18px;padding:13px 15px;font-size:13px;line-height:1.5;margin-bottom:16px}.notice strong{color:#0c4a6e}
+    .call-status{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:10px 0 14px}.call-status button{justify-content:center;padding:9px 10px;font-size:12px}.call-status .active-step{outline:3px solid rgba(15,76,129,.18);background:#dbeafe;color:#0f4c81}.message-box{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:14px;padding:12px;white-space:pre-wrap;font-size:13px;line-height:1.5}.file-pill{display:inline-flex;align-items:center;gap:7px;background:#eef2ff;color:#3730a3;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800}.file-note{font-size:12px;color:#64748b;line-height:1.45;margin-top:7px}
+    @media(max-width:1100px){.quick-panel{grid-template-columns:1fr}.quick-stat{grid-template-columns:repeat(4,minmax(0,1fr))}}
+    @media(max-width:980px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.main{padding:16px}.topbar{align-items:flex-start;flex-direction:column;border-radius:22px;padding:18px}.toolbar{justify-content:flex-start}.grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr}.form,.form.two,.form.three,.filters{grid-template-columns:1fr}.call-status{grid-template-columns:1fr 1fr}table{min-width:760px}.quick-stat{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:560px){.nav{grid-template-columns:1fr}.quick-stat{grid-template-columns:1fr}.brand{padding:12px}.topbar h2{font-size:24px}}
+    @media print{.sidebar,.toolbar,.no-print,form,.nav,.topbar p{display:none!important}.app{display:block}.main{padding:0}.card{box-shadow:none;border:0}.section{display:block}.section:not(.active){display:none}.table-wrap{border:0}body{background:#fff}.topbar{background:#fff;color:#111827;box-shadow:none}.topbar h2{color:#111827}}
   </style>
 </head>
 <body>
@@ -68,11 +97,11 @@
     <aside class="sidebar">
       <div class="brand">
         <div class="brand-mark">MP</div>
-        <div><h1>Manoj Production ERP</h1><p>Fabrication · Welding · QC · MIR</p></div>
+        <div><h1>Production Control Center</h1><p>Daily Plan · QC Call · Worker Hours</p></div>
       </div>
       <nav class="nav" id="nav"></nav>
       <div class="side-footer">
-        <strong>Own-use ERP v3</strong><br />
+        <strong>Own-use ERP v4</strong><br />
         Data saves in this browser using local storage. Use Backup JSON regularly before clearing browser data.
       </div>
     </aside>
@@ -92,6 +121,24 @@
       </div>
 
       <section id="dashboard" class="section active">
+        <div class="quick-panel">
+          <div class="quick-hero">
+            <h3>Fabrication Daily Control Dashboard</h3>
+            <p>Morning plan upload pannunga, LS/CS fit-up or welding inspection call raise pannunga, evening CEO report copy pannunga.</p>
+            <div class="quick-actions no-print">
+              <button class="primary" onclick="showSection('plans')">+ Daily Plan</button>
+              <button class="success" onclick="showSection('inspectionCalls')">+ QC Call</button>
+              <button class="ghost" onclick="showSection('daily')">+ Actual Work</button>
+              <button class="ghost" onclick="showSection('reports')">CEO Report</button>
+            </div>
+          </div>
+          <div class="quick-stat" id="quickStats">
+            <div class="mini-stat"><strong id="qsToday">0</strong><span>Today Entries</span></div>
+            <div class="mini-stat"><strong id="qsPlan">0</strong><span>Plan Pending</span></div>
+            <div class="mini-stat"><strong id="qsQC">0</strong><span>QC Calls</span></div>
+            <div class="mini-stat"><strong id="qsOT">0</strong><span>OT Hours</span></div>
+          </div>
+        </div>
         <div class="grid cols-4" id="kpiGrid"></div>
         <div class="grid cols-2" style="margin-top:18px">
           <div class="card"><h3>Job-wise Hours</h3><div id="jobBars" class="bar-list"></div></div>
@@ -369,7 +416,8 @@ function initForms(){
 function renderAll(){fillJobSelects();renderDashboard();renderDaily();renderPlans();renderPlanFiles();renderJobs();renderTags();renderWorkers();renderInspectionCalls();renderQC();renderMaterials();loadSettingsForm()}
 function loadSettingsForm(){const f=document.getElementById('settingsForm');setForm(f,db.settings)}
 function renderDashboard(){
-  const totalHours=db.daily.reduce((a,b)=>a+Number(b.totalHours||0),0);const otHours=db.daily.reduce((a,b)=>a+Number(b.otHours||0),0);const pendingQC=db.qc.filter(x=>['Pending','Raised','Call Raised'].includes(x.qcStatus)||['Pending','Call Raised','Confirmed'].includes(x.tpiStatus)).length;const pendingCalls=(db.inspectionCalls||[]).filter(x=>!['Completed / Accepted'].includes(x.callStatus)).length;const pendingMat=db.materials.filter(x=>['Pending','Partially Received','Hold'].includes(x.status)).length;const pendingPlans=(db.plans||[]).filter(x=>['Planned','Pending','Hold'].includes(x.status)).length;const todayEntries=db.daily.filter(x=>x.date===today()).length;const todayPlans=(db.plans||[]).filter(x=>x.date===today()).length;
+  const totalHours=db.daily.reduce((a,b)=>a+Number(b.totalHours||0),0);const otHours=db.daily.reduce((a,b)=>a+Number(b.otHours||0),0);const pendingQC=db.qc.filter(x=>['Pending','Raised','Call Raised'].includes(x.qcStatus)||['Pending','Call Raised','Confirmed'].includes(x.tpiStatus)).length;const pendingCalls=(db.inspectionCalls||[]).filter(x=>!['Completed / Accepted'].includes(x.callStatus)).length;const pendingMat=db.materials.filter(x=>['Pending','Partially Received','Hold'].includes(x.status)).length;const pendingPlans=(db.plans||[]).filter(x=>['Planned','Pending','Hold'].includes(x.status)).length;const todayEntries=db.daily.filter(x=>x.date===today()).length;
+  const setText=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val};setText('qsToday',todayEntries);setText('qsPlan',pendingPlans);setText('qsQC',pendingCalls);setText('qsOT',otHours.toFixed(1));const todayPlans=(db.plans||[]).filter(x=>x.date===today()).length;
   const cards=[['Total Jobs',db.jobs.length,'Active job master records','🏭'],['Total Work Hours',totalHours.toFixed(2),'Regular + OT from daily entries','⏱'],['Total OT Hours',otHours.toFixed(2),'After 5:00 PM calculation','🌙'],['Pending Alerts',pendingQC+pendingCalls+pendingMat+pendingPlans,`Plan ${pendingPlans} · Calls ${pendingCalls} · QC/TPI ${pendingQC} · Material ${pendingMat}`,'⚠']];
   document.getElementById('kpiGrid').innerHTML=cards.map(c=>`<div class="card kpi"><div><div class="label">${c[0]}</div><div class="value">${c[1]}</div><div class="sub">${c[2]}</div></div><div class="icon">${c[3]}</div></div>`).join('')+`<div class="card kpi"><div><div class="label">Today Plan / Entries</div><div class="value">${todayPlans}/${todayEntries}</div><div class="sub">${fmtDate(today())}</div></div><div class="icon">📌</div></div>`;
   renderBars('jobBars',groupSum(db.daily,x=>x.jobNo,x=>x.totalHours),'hrs');
