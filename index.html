@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manoj Production ERP - Control Center View</title>
+  <title>Manoj Production ERP - Google Sheets Sync</title>
   <meta name="description" content="Personal production ERP for job-wise fabrication tracking, worker hours, OT, daily work plan uploads, fit-up inspection calls, QC/TPI, material and CEO reports." />
   <style>
     :root{
@@ -101,8 +101,8 @@
       </div>
       <nav class="nav" id="nav"></nav>
       <div class="side-footer">
-        <strong>Own-use ERP v4</strong><br />
-        Data saves in this browser using local storage. Use Backup JSON regularly before clearing browser data.
+        <strong>Own-use ERP v5</strong><br />
+        Data saves locally + optional Google Sheets sync. Use Backup JSON regularly before clearing browser data.
       </div>
     </aside>
 
@@ -130,6 +130,7 @@
               <button class="success" onclick="showSection('inspectionCalls')">+ QC Call</button>
               <button class="ghost" onclick="showSection('daily')">+ Actual Work</button>
               <button class="ghost" onclick="showSection('reports')">CEO Report</button>
+              <button class="ghost" onclick="showSection('settings')">Google Sheets Sync</button>
             </div>
           </div>
           <div class="quick-stat" id="quickStats">
@@ -352,6 +353,23 @@
             <p class="muted">Use these buttons to move the ERP data between systems.</p>
             <div class="actions"><button class="success" onclick="backupJSON()">Backup JSON</button><label class="btn ghost" for="restoreFile2">Restore JSON<input class="hide" id="restoreFile2" type="file" accept="application/json" onchange="restoreJSON(event)"></label><button class="warning" onclick="seedDemoData(true)">Reset With Sample</button><button class="danger" onclick="clearAllData()">Clear All</button></div>
           </div>
+          <div class="card">
+            <h3>Google Sheets Sync</h3>
+            <div class="notice"><strong>How this works:</strong> Google Sheet-la data save aagum. Website-la Web App URL paste pannitu Sync Now press pannunga. File upload actual file data Google Sheets-la save aagathu; filename/details mattum sync aagum.</div>
+            <div class="form two">
+              <div class="full"><label>Apps Script Web App URL</label><input id="cloudUrl" placeholder="https://script.google.com/macros/s/AKfycb.../exec"></div>
+              <div><label>Auto Sync</label><select id="autoCloudSync"><option value="true">ON - after every save</option><option value="false">OFF - manual only</option></select></div>
+              <div><label>Last Sync</label><input id="lastCloudSync" readonly placeholder="Not synced yet"></div>
+              <div class="full"><div class="actions">
+                <button class="primary" onclick="saveCloudSettings()">Save URL</button>
+                <button class="success" onclick="cloudSyncNow()">Sync Now to Sheet</button>
+                <button class="ghost" onclick="cloudLoadFromSheet()">Load From Sheet</button>
+                <button class="warning" onclick="cloudSetupSheets()">Create / Check Sheet Tabs</button>
+                <button class="ghost" onclick="cloudTest()">Test</button>
+              </div></div>
+            </div>
+            <div id="cloudStatus" class="message-box" style="margin-top:12px">Google Sheets sync not connected.</div>
+          </div>
         </div>
       </section>
     </main>
@@ -373,7 +391,7 @@ const sections=[
   ['settings','⚙ Settings','Work time and data management.']
 ];
 const emptyDB=()=>({
-  settings:{regularStart:'08:30',regularEnd:'17:00',defaultOTEnd:'19:00',company:'Dynatherm Production Tracking'},
+  settings:{regularStart:'08:30',regularEnd:'17:00',defaultOTEnd:'19:00',company:'Dynatherm Production Tracking',googleScriptUrl:'',autoCloudSync:'false',lastCloudSync:''},
   jobs:[],tags:[],daily:[],plans:[],planFiles:[],inspectionCalls:[],qc:[],materials:[]
 });
 let db=loadDB();
@@ -381,7 +399,7 @@ let editing={jobs:null,tags:null,daily:null,plans:null,qc:null,materials:null};
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 function today(){return new Date().toISOString().slice(0,10)}
 function loadDB(){try{const raw=localStorage.getItem(STORAGE_KEY);const data=raw?JSON.parse(raw):emptyDB();const base=emptyDB();return {...base,...data,settings:{...base.settings,...(data.settings||{})},plans:data.plans||[],planFiles:data.planFiles||[],inspectionCalls:data.inspectionCalls||[]}}catch(e){return emptyDB()}}
-function saveDB(){localStorage.setItem(STORAGE_KEY,JSON.stringify(db));renderAll()}
+function saveDB(options={}){localStorage.setItem(STORAGE_KEY,JSON.stringify(db));renderAll();if(!options.skipCloud)queueCloudSync()}
 function fmtDate(d){if(!d)return'';const [y,m,day]=d.split('-');return `${day}-${m}-${y}`}
 function statusChip(v){const x=(v||'').toLowerCase();let cls='default';if(x.includes('complete')||x.includes('received')||x.includes('issued')||x.includes('confirmed'))cls='done';else if(x.includes('progress')||x.includes('raised')||x.includes('partial')||x.includes('call'))cls='progress';else if(x.includes('hold'))cls='hold';else if(x.includes('pending')||x.includes('not'))cls='pending';return `<span class="chip ${cls}">${v||'-'}</span>`}
 function minutes(t){if(!t)return 0;let [h,m]=t.split(':').map(Number);return h*60+m}
@@ -411,10 +429,10 @@ function initForms(){
   document.getElementById('inspectionCallForm').onsubmit=e=>{e.preventDefault();upsert('inspectionCalls',formData(e.target));resetForm(e.target)};
   document.getElementById('qcForm').onsubmit=e=>{e.preventDefault();upsert('qc',formData(e.target));resetForm(e.target)};
   document.getElementById('materialForm').onsubmit=e=>{e.preventDefault();upsert('materials',formData(e.target));e.target.reset()};
-  document.getElementById('settingsForm').onsubmit=e=>{e.preventDefault();db.settings=formData(e.target);saveDB();alert('Settings saved')};
+  document.getElementById('settingsForm').onsubmit=e=>{e.preventDefault();db.settings={...db.settings,...formData(e.target)};saveDB({skipCloud:true});alert('Settings saved')};
 }
 function renderAll(){fillJobSelects();renderDashboard();renderDaily();renderPlans();renderPlanFiles();renderJobs();renderTags();renderWorkers();renderInspectionCalls();renderQC();renderMaterials();loadSettingsForm()}
-function loadSettingsForm(){const f=document.getElementById('settingsForm');setForm(f,db.settings)}
+function loadSettingsForm(){const f=document.getElementById('settingsForm');setForm(f,db.settings);const url=document.getElementById('cloudUrl');const auto=document.getElementById('autoCloudSync');const last=document.getElementById('lastCloudSync');if(url)url.value=db.settings.googleScriptUrl||'';if(auto)auto.value=String(db.settings.autoCloudSync||'false');if(last)last.value=db.settings.lastCloudSync?new Date(db.settings.lastCloudSync).toLocaleString():''}
 function renderDashboard(){
   const totalHours=db.daily.reduce((a,b)=>a+Number(b.totalHours||0),0);const otHours=db.daily.reduce((a,b)=>a+Number(b.otHours||0),0);const pendingQC=db.qc.filter(x=>['Pending','Raised','Call Raised'].includes(x.qcStatus)||['Pending','Call Raised','Confirmed'].includes(x.tpiStatus)).length;const pendingCalls=(db.inspectionCalls||[]).filter(x=>!['Completed / Accepted'].includes(x.callStatus)).length;const pendingMat=db.materials.filter(x=>['Pending','Partially Received','Hold'].includes(x.status)).length;const pendingPlans=(db.plans||[]).filter(x=>['Planned','Pending','Hold'].includes(x.status)).length;const todayEntries=db.daily.filter(x=>x.date===today()).length;
   const setText=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val};setText('qsToday',todayEntries);setText('qsPlan',pendingPlans);setText('qsQC',pendingCalls);setText('qsOT',otHours.toFixed(1));const todayPlans=(db.plans||[]).filter(x=>x.date===today()).length;
@@ -517,6 +535,85 @@ function generateReport(){
   document.getElementById('reportOutput').textContent=text;
 }
 function copyReport(){navigator.clipboard.writeText(document.getElementById('reportOutput').textContent).then(()=>alert('Report copied'))}
+
+let cloudTimer=null;
+function stripCloudDB(source){
+  const clean=JSON.parse(JSON.stringify(source||emptyDB()));
+  clean.planFiles=(clean.planFiles||[]).map(f=>{const {dataUrl,...rest}=f;return rest});
+  clean.settings={...clean.settings,googleScriptUrl:db.settings.googleScriptUrl||'',autoCloudSync:db.settings.autoCloudSync||'false'};
+  return clean;
+}
+function cloudUrl(){return (db.settings.googleScriptUrl||'').trim()}
+function setCloudStatus(msg){const el=document.getElementById('cloudStatus');if(el)el.textContent=msg}
+function saveCloudSettings(){
+  const url=(document.getElementById('cloudUrl')?.value||'').trim();
+  const auto=document.getElementById('autoCloudSync')?.value||'false';
+  if(url && !url.includes('/macros/s/')){if(!confirm('URL Apps Script Web App URL pola theriyala. Continue?'))return}
+  db.settings.googleScriptUrl=url; db.settings.autoCloudSync=auto; saveDB({skipCloud:true});
+  setCloudStatus(url?'Google Sheets URL saved. Press Test or Sync Now.':'Google Sheets URL cleared.');
+}
+function queueCloudSync(){
+  if(String(db.settings.autoCloudSync||'false')!=='true' || !cloudUrl())return;
+  clearTimeout(cloudTimer);
+  cloudTimer=setTimeout(()=>cloudSyncNow(true),1800);
+}
+function jsonpRequest(base,params={}){
+  return new Promise((resolve,reject)=>{
+    const cb='erpCb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    const script=document.createElement('script');
+    const q=new URLSearchParams({...params,callback:cb,ts:Date.now()});
+    const sep=base.includes('?')?'&':'?';
+    const timer=setTimeout(()=>{cleanup();reject(new Error('Request timed out'))},20000);
+    function cleanup(){clearTimeout(timer);delete window[cb];script.remove()}
+    window[cb]=(data)=>{cleanup();resolve(data)};
+    script.onerror=()=>{cleanup();reject(new Error('Apps Script request failed. Check Web App URL and access setting.'))};
+    script.src=base+sep+q.toString();
+    document.body.appendChild(script);
+  });
+}
+async function cloudTest(){
+  saveCloudSettings();
+  if(!cloudUrl()){alert('First paste your Apps Script Web App URL');return}
+  setCloudStatus('Testing Google Sheets connection...');
+  try{const res=await jsonpRequest(cloudUrl(),{action:'health'});setCloudStatus(res.ok?'Connected: '+(res.message||'OK'):'Connection failed: '+JSON.stringify(res));}
+  catch(err){setCloudStatus('Connection failed: '+err.message);alert(err.message)}
+}
+async function cloudSetupSheets(){
+  saveCloudSettings();
+  if(!cloudUrl()){alert('First paste your Apps Script Web App URL');return}
+  setCloudStatus('Creating/checking Google Sheet tabs...');
+  try{const res=await jsonpRequest(cloudUrl(),{action:'setup'});setCloudStatus(res.ok?'Sheet tabs ready: '+(res.tabs||[]).join(', '):'Setup failed: '+JSON.stringify(res));}
+  catch(err){setCloudStatus('Setup failed: '+err.message);alert(err.message)}
+}
+async function cloudSyncNow(silent=false){
+  if(!cloudUrl()){if(!silent)alert('First paste and save your Apps Script Web App URL');return}
+  const payload={action:'syncAll',db:stripCloudDB(db)};
+  setCloudStatus('Syncing ERP data to Google Sheets...');
+  try{
+    await fetch(cloudUrl(),{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+    db.settings.lastCloudSync=new Date().toISOString();
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
+    loadSettingsForm();
+    setCloudStatus('Sync sent to Google Sheets. Use Test / Load From Sheet to verify. Last sync: '+new Date(db.settings.lastCloudSync).toLocaleString());
+    if(!silent)alert('Sync sent to Google Sheets');
+  }catch(err){setCloudStatus('Sync failed: '+err.message);if(!silent)alert('Sync failed: '+err.message)}
+}
+async function cloudLoadFromSheet(){
+  if(!cloudUrl()){alert('First paste and save your Apps Script Web App URL');return}
+  if(!confirm('This will replace current browser data with Google Sheet data. Continue?'))return;
+  setCloudStatus('Loading ERP data from Google Sheets...');
+  try{
+    const res=await jsonpRequest(cloudUrl(),{action:'read'});
+    if(!res.ok)throw new Error(res.error||'Could not read sheet');
+    const base=emptyDB();
+    const currentUrl=db.settings.googleScriptUrl;
+    const auto=db.settings.autoCloudSync;
+    db={...base,...res.db,settings:{...base.settings,...(res.db.settings||{}),googleScriptUrl:currentUrl,autoCloudSync:auto}};
+    saveDB({skipCloud:true});
+    setCloudStatus('Loaded from Google Sheets successfully. Records: jobs '+db.jobs.length+', daily '+db.daily.length+', plans '+(db.plans||[]).length+'.');
+  }catch(err){setCloudStatus('Load failed: '+err.message);alert('Load failed: '+err.message)}
+}
+
 function printCurrent(){window.print()}
 function toCSV(rows){if(!rows.length)return'';const cols=[...new Set(rows.flatMap(r=>Object.keys(r)))].filter(c=>c!=='id');const esc=v=>'"'+String(v??'').replace(/"/g,'""')+'"';return cols.join(',')+'\n'+rows.map(r=>cols.map(c=>esc(r[c])).join(',')).join('\n')}
 function download(name,text,type='text/plain'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href)}
